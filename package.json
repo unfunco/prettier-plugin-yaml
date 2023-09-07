@@ -1,0 +1,22 @@
+{
+  "author": {
+    "email": "daniel@honestempire.com",
+    "name": "Daniel Morris",
+    "url": "https://unfun.co"
+  },
+  "dependencies": {},
+  "description": "YAML plugin for Prettier that avoids indentation of sequence values.",
+  "devDependencies": {
+    "prettier": "3.0.3"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "Apache-2.0",
+  "name": "prettier-plugin-yaml",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unfunco/prettier-plugin-yaml"
+  },
+  "scripts": {}
+}
