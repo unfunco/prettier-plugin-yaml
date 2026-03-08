@@ -1,0 +1,31 @@
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+    cooldown:
+      default-days: 7
+    directory: '/'
+    labels:
+      - chore 🧹
+    pull-request-branch-name:
+      separator: /
+    schedule:
+      day: sunday
+      interval: weekly
+  - package-ecosystem: npm
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+    cooldown:
+      default-days: 7
+    directory: '/'
+    labels:
+      - chore 🧹
+    pull-request-branch-name:
+      separator: /
+    schedule:
+      day: monday
+      interval: weekly
