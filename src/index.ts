@@ -1,5 +1,5 @@
 import {
-  AstPath,
+  type AstPath,
   type Doc,
   type doc,
   type ParserOptions,
