@@ -10,7 +10,7 @@
   "description": "YAML plugin for Prettier that avoids indentation of sequence values.",
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "4.7.1",
-    "@types/node": "^20.19.37",
+    "@types/node": "^25.3.3",
     "eslint": "10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "jiti": "^2.6.1",
