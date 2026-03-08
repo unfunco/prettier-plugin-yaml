@@ -3,7 +3,7 @@
 ## License
 
 © 2023 [Daniel Morris]\
-Made available under the terms of the [Apache License 2.0].
+Made available under the terms of the [MIT License].
 
-[apache license 2.0]: LICENSE.md
 [daniel morris]: https://unfun.co
+[mit license]: LICENSE.md
