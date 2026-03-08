@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Daniel Morris <daniel@honestempire.com>
+// SPDX-License-Identifier: MIT
+
 import prettier from 'prettier'
 import * as builtinYamlPlugin from 'prettier/plugins/yaml'
 import { describe, expect, it } from 'vitest'
