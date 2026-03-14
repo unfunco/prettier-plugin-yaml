@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           cache: npm
-          node-version: 24.x
+          node-version-file: .node-version
       - name: Install dependencies
         run: npm ci
       - name: Audit dependencies
@@ -30,14 +30,48 @@ jobs:
 
   release:
     name: Release?
-    needs: [verify]
+    needs: [ verify ]
     permissions:
       contents: write
       pull-requests: write
+      packages: write
     runs-on: ubuntu-24.04
     steps:
       - name: Release?
+        id: release
         uses: googleapis/release-please-action@16a9c90856f42705d54a6fda1823352bdc62cf38 # v4.4.0
         with:
           config-file: .github/release-please-config.json
           manifest-file: .github/release-please-manifest.json
+      - name: Checkout code
+        if: ${{ steps.release.outputs.releases_created }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Setup Node.js (NPM)
+        if: ${{ steps.release.outputs.releases_created }}
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version-file: .node-version
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install dependencies
+        if: ${{ steps.release.outputs.releases_created }}
+        run: npm ci
+      - name: Build
+        if: ${{ steps.release.outputs.releases_created }}
+        run: npm run build
+      - name: Publish to NPM
+        if: ${{ steps.release.outputs.releases_created }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
+      - name: Setup Node.js (GPR)
+        if: ${{ steps.release.outputs.releases_created }}
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version-file: .node-version
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@unfunco'
+      - name: Publish to GitHub Packages
+        if: ${{ steps.release.outputs.releases_created }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish
