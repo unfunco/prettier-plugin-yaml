@@ -81,6 +81,19 @@ property: [a, b]
     expect(formatted).toBe('property: [a, b]\n')
   })
 
+  it('keeps multi-line flow sequences unchanged', async () => {
+    const formatted = await format(`
+key:
+  [
+    a,
+    b
+  ]
+`)
+    expect(formatted).toBe(`\
+key: [a, b]
+`)
+  })
+
   it('keeps sequence comments aligned with the sequence', async () => {
     const formatted = await format(`
 property:

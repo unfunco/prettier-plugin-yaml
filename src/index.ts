@@ -51,7 +51,7 @@ function getBlockSequenceValue(mappingItem: AstNode | null | undefined) {
 }
 
 function isSequenceValueIndent(doc: Doc): doc is Align {
-  if (typeof doc === 'string' || Array.isArray(doc)) {
+  if (!doc || typeof doc === 'string' || Array.isArray(doc)) {
     return false
   }
 
@@ -64,6 +64,10 @@ function isSequenceValueIndent(doc: Doc): doc is Align {
 }
 
 function unwrapFirstSequenceValueIndent(doc: Doc): [Doc, boolean] {
+  if (!doc || typeof doc === 'string') {
+    return [doc, false]
+  }
+
   if (Array.isArray(doc)) {
     let changed = false
     const nextDoc: Doc[] = []
@@ -77,10 +81,6 @@ function unwrapFirstSequenceValueIndent(doc: Doc): [Doc, boolean] {
       nextDoc.push(nextEntry)
     }
     return [changed ? nextDoc : doc, changed]
-  }
-
-  if (typeof doc === 'string') {
-    return [doc, false]
   }
 
   if (isSequenceValueIndent(doc)) {
