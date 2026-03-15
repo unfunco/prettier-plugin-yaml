@@ -76,10 +76,12 @@ function unwrapFirstSequenceValueIndent(doc: Doc): [Doc, boolean] {
         nextDoc.push(entry)
         continue
       }
+
       const [nextEntry, nextChanged] = unwrapFirstSequenceValueIndent(entry)
       changed = nextChanged
       nextDoc.push(nextEntry)
     }
+
     return [changed ? nextDoc : doc, changed]
   }
 
@@ -91,11 +93,13 @@ function unwrapFirstSequenceValueIndent(doc: Doc): [Doc, boolean] {
     if (!(key in doc)) {
       continue
     }
+
     const docRecord = doc as unknown as Record<string, Doc | undefined>
     const value = docRecord[key]
     if (value === undefined) {
       continue
     }
+
     const [nextValue, changed] = unwrapFirstSequenceValueIndent(value)
     if (changed) {
       return [{ ...docRecord, [key]: nextValue } as unknown as Doc, true]
