@@ -23,9 +23,7 @@ Add the plugin to your Prettier configuration file:
 
 ```json
 {
-  "plugins": [
-    "@unfunco/prettier-plugin-yaml"
-  ]
+  "plugins": ["@unfunco/prettier-plugin-yaml"]
 }
 ```
 
