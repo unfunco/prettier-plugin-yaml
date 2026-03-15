@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.1.0...v0.1.1) (2026-03-15)
+
+
+### 🧹 Miscellaneous
+
+* Add generated files to .prettierignore ([#11](https://github.com/unfunco/prettier-plugin-yaml/issues/11)) ([e56b584](https://github.com/unfunco/prettier-plugin-yaml/commit/e56b5842be8744163d63329e6534ea3c0e7067f9))
+
 ## 0.1.0 (2026-03-15)
 
 
