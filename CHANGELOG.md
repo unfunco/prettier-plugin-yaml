@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.2.0](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.1.1...v0.2.0) (2026-03-17)
+
+
+### 🎉 New features
+
+* Add YAML flow collection spacing option ([#16](https://github.com/unfunco/prettier-plugin-yaml/issues/16)) ([fa0cc02](https://github.com/unfunco/prettier-plugin-yaml/commit/fa0cc021ca5ac9bde36c59a7f6a7a3f8e1436ff7))
+
+
+### 🐛 Bug fixes
+
+* Guard publish steps on release creation ([#17](https://github.com/unfunco/prettier-plugin-yaml/issues/17)) ([d705bc2](https://github.com/unfunco/prettier-plugin-yaml/commit/d705bc267afdb93855eb3d8983bdfb04b01567f5))
+
+
+### 🧹 Miscellaneous
+
+* Bump actions/setup-node from 6.2.0 to 6.3.0 ([#13](https://github.com/unfunco/prettier-plugin-yaml/issues/13)) ([e43fc8b](https://github.com/unfunco/prettier-plugin-yaml/commit/e43fc8b8ba6b9986870e4e2292ae84cb9b256069))
+
 ## [0.1.1](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.1.0...v0.1.1) (2026-03-15)
 
 
