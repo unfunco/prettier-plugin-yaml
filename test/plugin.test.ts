@@ -81,6 +81,22 @@ property: [a, b]
     expect(formatted).toBe('property: [a, b]\n')
   })
 
+  it('collapses spaces inside flow sequences', async () => {
+    const formatted = await format(`
+property: [ verify ]
+`)
+
+    expect(formatted).toBe('property: [verify]\n')
+  })
+
+  it('collapses spaces inside empty flow mappings', async () => {
+    const formatted = await format(`
+property: { }
+`)
+
+    expect(formatted).toBe('property: {}\n')
+  })
+
   it('keeps multi-line flow sequences unchanged', async () => {
     const formatted = await format(`
 key:
@@ -128,6 +144,80 @@ property:
     object_one_property_two: 2
   - object_two: 2
     object_two_property_two: 2
+`)
+  })
+})
+
+describe('yamlFlowCollectionSpacing: true', () => {
+  it('adds spaces inside flow sequences', async () => {
+    const formatted = await format(
+      `
+property: [verify]
+`,
+      { yamlFlowCollectionSpacing: true },
+    )
+
+    expect(formatted).toBe('property: [ verify ]\n')
+  })
+
+  it('adds spaces inside empty flow sequences', async () => {
+    const formatted = await format(
+      `
+property: []
+`,
+      { yamlFlowCollectionSpacing: true },
+    )
+
+    expect(formatted).toBe('property: [ ]\n')
+  })
+
+  it('adds spaces inside empty flow mappings', async () => {
+    const formatted = await format(
+      `
+property: {}
+`,
+      { yamlFlowCollectionSpacing: true },
+    )
+
+    expect(formatted).toBe('property: { }\n')
+  })
+
+  it('adds spaces inside nested flow collections', async () => {
+    const formatted = await format(
+      `
+property: [{}, [a]]
+`,
+      { yamlFlowCollectionSpacing: true },
+    )
+
+    expect(formatted).toBe('property: [ { }, [ a ] ]\n')
+  })
+
+  it('overrides bracketSpacing=false for flow mappings', async () => {
+    const formatted = await format(
+      `
+property: {a: 1}
+`,
+      { bracketSpacing: false, yamlFlowCollectionSpacing: true },
+    )
+
+    expect(formatted).toBe('property: { a: 1 }\n')
+  })
+
+  it('adds spaces to multi-line flow sequences after flattening', async () => {
+    const formatted = await format(
+      `
+key:
+  [
+    a,
+    b
+  ]
+`,
+      { yamlFlowCollectionSpacing: true },
+    )
+
+    expect(formatted).toBe(`\
+key: [ a, b ]
 `)
   })
 })

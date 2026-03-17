@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: MIT
 
 import {
+  doc,
   type AstPath,
   type Doc,
-  type doc,
   type ParserOptions,
   type Plugin,
   type SupportOption,
@@ -12,6 +12,13 @@ import {
 import * as builtinYamlPlugin from 'prettier/plugins/yaml'
 
 type Align = doc.builders.Align
+type DocObject = Exclude<Doc, string | Doc[]>
+type DocRecord = DocObject &
+  Partial<Record<(typeof DOC_CHILD_KEYS)[number], Doc>>
+type Group = doc.builders.Group
+type Line = doc.builders.Line
+
+const { line } = doc.builders
 
 const DOC_CHILD_KEYS = [
   'contents',
@@ -51,7 +58,7 @@ function getBlockSequenceValue(mappingItem: AstNode | null | undefined) {
 }
 
 function isSequenceValueIndent(doc: Doc): doc is Align {
-  if (!doc || typeof doc === 'string' || Array.isArray(doc)) {
+  if (!isDocObject(doc)) {
     return false
   }
 
@@ -61,6 +68,22 @@ function isSequenceValueIndent(doc: Doc): doc is Align {
     doc.contents[0] === '' &&
     doc.contents[1] === ':'
   )
+}
+
+function isDocObject(doc: Doc): doc is DocObject {
+  return Boolean(doc) && typeof doc !== 'string' && !Array.isArray(doc)
+}
+
+function isAlign(doc: Doc): doc is Align {
+  return isDocObject(doc) && doc.type === 'align'
+}
+
+function isGroup(doc: Doc): doc is Group {
+  return isDocObject(doc) && doc.type === 'group'
+}
+
+function isLine(doc: Doc): doc is Line {
+  return isDocObject(doc) && doc.type === 'line'
 }
 
 function unwrapFirstSequenceValueIndent(doc: Doc): [Doc, boolean] {
@@ -109,6 +132,80 @@ function unwrapFirstSequenceValueIndent(doc: Doc): [Doc, boolean] {
   return [doc, false]
 }
 
+function addFlowCollectionSpacing(doc: Doc): [Doc, boolean] {
+  if (!doc || typeof doc === 'string') {
+    return [doc, false]
+  }
+
+  if (Array.isArray(doc)) {
+    let changed = false
+    const nextDoc: Doc[] = []
+    for (const entry of doc) {
+      const [nextEntry, nextChanged] = addFlowCollectionSpacing(entry)
+      changed ||= nextChanged
+      nextDoc.push(nextEntry)
+    }
+
+    return [changed ? nextDoc : doc, changed]
+  }
+
+  let nextDoc = doc
+  let changed = false
+
+  if (isGroup(doc) && Array.isArray(doc.contents)) {
+    const [open, spacing, trailing, close] = doc.contents
+    if (
+      ((open === '[' && close === ']') || (open === '{' && close === '}')) &&
+      isAlign(spacing) &&
+      Array.isArray(spacing.contents)
+    ) {
+      const [leading, ...rest] = spacing.contents
+      const isEmptyFlowCollection =
+        Array.isArray(rest[0]) && rest[0].length === 0
+      const nextLeading = isLine(leading) && leading.soft ? line : leading
+      const nextTrailing =
+        !isEmptyFlowCollection && isLine(trailing) && trailing.soft
+          ? line
+          : trailing
+
+      if (nextLeading !== leading || nextTrailing !== trailing) {
+        nextDoc = {
+          ...doc,
+          contents: [
+            open,
+            { ...spacing, contents: [nextLeading, ...rest] },
+            nextTrailing,
+            close,
+          ],
+        }
+        changed = true
+      }
+    }
+  }
+
+  for (const key of DOC_CHILD_KEYS) {
+    const docRecord = nextDoc as DocRecord
+    const value = docRecord[key]
+    if (value === undefined) {
+      continue
+    }
+
+    const [nextValue, nextChanged] = addFlowCollectionSpacing(value)
+    if (!nextChanged) {
+      continue
+    }
+
+    if (!changed) {
+      nextDoc = { ...nextDoc }
+      changed = true
+    }
+
+    ;(nextDoc as DocRecord)[key] = nextValue
+  }
+
+  return [changed ? nextDoc : doc, changed]
+}
+
 const astFormat = 'yaml-unindented-sequences'
 const plugin: Plugin = {
   parsers: {
@@ -125,17 +222,20 @@ const plugin: Plugin = {
         options: ParserOptions,
         print: (path: AstPath) => Doc,
       ): Doc {
-        const doc = builtinYamlPlugin.printers.yaml.print(path, options, print)
+        let doc = builtinYamlPlugin.printers.yaml.print(path, options, print)
 
-        if (options.yamlIndentSequenceValues) {
-          return doc
+        if (
+          !options.yamlIndentSequenceValues &&
+          getBlockSequenceValue(path.node as AstNode)
+        ) {
+          doc = unwrapFirstSequenceValueIndent(doc)[0]
         }
 
-        if (!getBlockSequenceValue(path.node as AstNode)) {
-          return doc
+        if (options.yamlFlowCollectionSpacing) {
+          doc = addFlowCollectionSpacing(doc)[0]
         }
 
-        return unwrapFirstSequenceValueIndent(doc)[0]
+        return doc
       },
     },
   },
@@ -144,6 +244,12 @@ const plugin: Plugin = {
       category: 'YAML',
       default: false,
       description: 'Indent sequence values within block mappings.',
+      type: 'boolean',
+    } satisfies SupportOption,
+    yamlFlowCollectionSpacing: {
+      category: 'YAML',
+      default: false,
+      description: 'Put spaces inside YAML flow collection delimiters.',
       type: 'boolean',
     } satisfies SupportOption,
   },
