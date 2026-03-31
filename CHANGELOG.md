@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.2.0...v0.2.1) (2026-03-31)
+
+
+### 🧹 Miscellaneous
+
+* Upgrade dependencies ([#23](https://github.com/unfunco/prettier-plugin-yaml/issues/23)) ([5248dd7](https://github.com/unfunco/prettier-plugin-yaml/commit/5248dd735bccbf4d74b5238bb5c9033b3040c9f1))
+
 ## [0.2.0](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.1.1...v0.2.0) (2026-03-17)
 
 
