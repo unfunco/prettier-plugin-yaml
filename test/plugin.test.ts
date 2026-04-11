@@ -73,43 +73,6 @@ root:
 `)
   })
 
-  it('keeps flow sequences unchanged', async () => {
-    const formatted = await format(`
-property: [a, b]
-`)
-
-    expect(formatted).toBe('property: [a, b]\n')
-  })
-
-  it('collapses spaces inside flow sequences', async () => {
-    const formatted = await format(`
-property: [ verify ]
-`)
-
-    expect(formatted).toBe('property: [verify]\n')
-  })
-
-  it('collapses spaces inside empty flow mappings', async () => {
-    const formatted = await format(`
-property: { }
-`)
-
-    expect(formatted).toBe('property: {}\n')
-  })
-
-  it('keeps multi-line flow sequences unchanged', async () => {
-    const formatted = await format(`
-key:
-  [
-    a,
-    b
-  ]
-`)
-    expect(formatted).toBe(`\
-key: [a, b]
-`)
-  })
-
   it('keeps sequence comments aligned with the sequence', async () => {
     const formatted = await format(`
 property:
@@ -148,63 +111,28 @@ property:
   })
 })
 
-describe('yamlFlowCollectionSpacing: true', () => {
-  it('adds spaces inside flow sequences', async () => {
+describe('yamlSpacesWithinBrackets: true (default)', () => {
+  it('adds spaces inside flow sequences by default', async () => {
     const formatted = await format(
       `
 property: [verify]
 `,
-      { yamlFlowCollectionSpacing: true },
     )
 
     expect(formatted).toBe('property: [ verify ]\n')
   })
 
-  it('adds spaces inside empty flow sequences', async () => {
+  it('adds spaces inside empty flow sequences by default', async () => {
     const formatted = await format(
       `
 property: []
 `,
-      { yamlFlowCollectionSpacing: true },
     )
 
     expect(formatted).toBe('property: [ ]\n')
   })
 
-  it('adds spaces inside empty flow mappings', async () => {
-    const formatted = await format(
-      `
-property: {}
-`,
-      { yamlFlowCollectionSpacing: true },
-    )
-
-    expect(formatted).toBe('property: { }\n')
-  })
-
-  it('adds spaces inside nested flow collections', async () => {
-    const formatted = await format(
-      `
-property: [{}, [a]]
-`,
-      { yamlFlowCollectionSpacing: true },
-    )
-
-    expect(formatted).toBe('property: [ { }, [ a ] ]\n')
-  })
-
-  it('overrides bracketSpacing=false for flow mappings', async () => {
-    const formatted = await format(
-      `
-property: {a: 1}
-`,
-      { bracketSpacing: false, yamlFlowCollectionSpacing: true },
-    )
-
-    expect(formatted).toBe('property: { a: 1 }\n')
-  })
-
-  it('adds spaces to multi-line flow sequences after flattening', async () => {
+  it('adds spaces to multi-line flow sequences after flattening by default', async () => {
     const formatted = await format(
       `
 key:
@@ -213,11 +141,79 @@ key:
     b
   ]
 `,
-      { yamlFlowCollectionSpacing: true },
     )
 
     expect(formatted).toBe(`\
 key: [ a, b ]
 `)
+  })
+
+  it('can disable spaces inside flow sequences', async () => {
+    const formatted = await format(
+      `
+property: [ verify ]
+`,
+      { yamlSpacesWithinBrackets: false },
+    )
+
+    expect(formatted).toBe('property: [verify]\n')
+  })
+})
+
+describe('yamlSpacesWithinBraces: true (default)', () => {
+  it('adds spaces inside empty flow mappings by default', async () => {
+    const formatted = await format(
+      `
+property: {}
+`,
+    )
+
+    expect(formatted).toBe('property: { }\n')
+  })
+
+  it('overrides bracketSpacing=false for flow mappings by default', async () => {
+    const formatted = await format(
+      `
+property: {a: 1}
+`,
+      { bracketSpacing: false },
+    )
+
+    expect(formatted).toBe('property: { a: 1 }\n')
+  })
+
+  it('can disable spaces inside flow mappings independent of bracketSpacing', async () => {
+    const formatted = await format(
+      `
+property: { a: 1 }
+`,
+      { yamlSpacesWithinBraces: false },
+    )
+
+    expect(formatted).toBe('property: {a: 1}\n')
+  })
+})
+
+describe('split flow collection spacing options', () => {
+  it('spaces braces without spacing brackets', async () => {
+    const formatted = await format(
+      `
+property: [{}, [a]]
+`,
+      { yamlSpacesWithinBrackets: false },
+    )
+
+    expect(formatted).toBe('property: [{ }, [a]]\n')
+  })
+
+  it('spaces brackets without spacing braces', async () => {
+    const formatted = await format(
+      `
+property: [{}, [a]]
+`,
+      { yamlSpacesWithinBraces: false },
+    )
+
+    expect(formatted).toBe('property: [ {}, [ a ] ]\n')
   })
 })
