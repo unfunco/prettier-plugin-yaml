@@ -6,11 +6,12 @@
 > [!NOTE]
 > 🤖 Developed with AI assistance.
 
-A YAML plugin for Prettier that prevents the indentation of sequence values and
-can optionally add spaces inside flow collection delimiters. This plugin allows
-you to control whether list items are indented relative to their parent key and
-whether flow collections stay spaced, providing cleaner YAML configurations for
-tools like GitHub Actions, Kubernetes, and Ansible.
+Yet another YAML plugin for Prettier. This exists because I got so attached to
+the way JetBrains IDEs format YAML that I couldn't bear to look at anything
+else. Indented sequence values? No fucking thanks. I've really only implemented
+enough to get the formatting I want, and when I say "I've," I mean I asked
+Copilot to do it. This is mostly vibe-coded. It's a YAML formatter that runs
+before committing, so the stakes are low. It does what I want it to.
 
 ## Getting started
 
@@ -22,11 +23,15 @@ npm install --save-dev prettier @unfunco/prettier-plugin-yaml
 
 ## Usage
 
-Add the plugin to your Prettier configuration file:
+Add the plugin to your Prettier configuration file and configure the options as
+desired if they differ from the defaults.
 
 ```json
 {
-  "plugins": ["@unfunco/prettier-plugin-yaml"]
+  "plugins": ["@unfunco/prettier-plugin-yaml"],
+  "yamlIndentSequenceValue": false,
+  "yamlSpacesWithinBraces": true,
+  "yamlSpacesWithinBrackets": true
 }
 ```
 
