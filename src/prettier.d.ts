@@ -5,12 +5,14 @@ export {}
 
 declare module 'prettier' {
   interface Options {
-    yamlIndentSequenceValues?: boolean
-    yamlFlowCollectionSpacing?: boolean
+    yamlIndentSequenceValue?: boolean
+    yamlSpacesWithinBraces?: boolean
+    yamlSpacesWithinBrackets?: boolean
   }
 
   interface ParserOptions {
-    yamlIndentSequenceValues?: boolean
-    yamlFlowCollectionSpacing?: boolean
+    yamlIndentSequenceValue?: boolean
+    yamlSpacesWithinBraces?: boolean
+    yamlSpacesWithinBrackets?: boolean
   }
 }

@@ -3,6 +3,7 @@
     "allowImportingTsExtensions": true,
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
+    "ignoreDeprecations": "6.0",
     "isolatedModules": true,
     "lib": ["DOM", "ESNext"],
     "module": "ESNext",

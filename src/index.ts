@@ -18,7 +18,7 @@ type DocRecord = DocObject &
 type Group = doc.builders.Group
 type Line = doc.builders.Line
 
-const { line } = doc.builders
+const { line, softline } = doc.builders
 
 const DOC_CHILD_KEYS = [
   'contents',
@@ -32,6 +32,11 @@ interface AstNode {
   type?: string
   children?: AstNode[]
   position?: { start: { line: number } }
+}
+
+interface FlowCollectionSpacingOptions {
+  braces: boolean
+  brackets: boolean
 }
 
 function getBlockSequenceValue(mappingItem: AstNode | null | undefined) {
@@ -86,6 +91,34 @@ function isLine(doc: Doc): doc is Line {
   return isDocObject(doc) && doc.type === 'line'
 }
 
+function getFlowCollectionSpacing(
+  open: Doc,
+  close: Doc,
+  options: FlowCollectionSpacingOptions,
+) {
+  if (open === '[' && close === ']') {
+    return options.brackets
+  }
+
+  if (open === '{' && close === '}') {
+    return options.braces
+  }
+
+  return null
+}
+
+function setFlatSpacing(doc: Doc, shouldSpace: boolean) {
+  if (!isLine(doc)) {
+    return doc
+  }
+
+  if (shouldSpace) {
+    return doc.soft ? line : doc
+  }
+
+  return doc.soft ? doc : softline
+}
+
 function unwrapFirstSequenceValueIndent(doc: Doc): [Doc, boolean] {
   if (!doc || typeof doc === 'string') {
     return [doc, false]
@@ -132,7 +165,10 @@ function unwrapFirstSequenceValueIndent(doc: Doc): [Doc, boolean] {
   return [doc, false]
 }
 
-function addFlowCollectionSpacing(doc: Doc): [Doc, boolean] {
+function normalizeFlowCollectionSpacing(
+  doc: Doc,
+  options: FlowCollectionSpacingOptions,
+): [Doc, boolean] {
   if (!doc || typeof doc === 'string') {
     return [doc, false]
   }
@@ -141,7 +177,10 @@ function addFlowCollectionSpacing(doc: Doc): [Doc, boolean] {
     let changed = false
     const nextDoc: Doc[] = []
     for (const entry of doc) {
-      const [nextEntry, nextChanged] = addFlowCollectionSpacing(entry)
+      const [nextEntry, nextChanged] = normalizeFlowCollectionSpacing(
+        entry,
+        options,
+      )
       changed ||= nextChanged
       nextDoc.push(nextEntry)
     }
@@ -154,19 +193,20 @@ function addFlowCollectionSpacing(doc: Doc): [Doc, boolean] {
 
   if (isGroup(doc) && Array.isArray(doc.contents)) {
     const [open, spacing, trailing, close] = doc.contents
+    const shouldSpace = getFlowCollectionSpacing(open, close, options)
     if (
-      ((open === '[' && close === ']') || (open === '{' && close === '}')) &&
+      shouldSpace !== null &&
       isAlign(spacing) &&
       Array.isArray(spacing.contents)
     ) {
       const [leading, ...rest] = spacing.contents
       const isEmptyFlowCollection =
         Array.isArray(rest[0]) && rest[0].length === 0
-      const nextLeading = isLine(leading) && leading.soft ? line : leading
+      const nextLeading = setFlatSpacing(leading, shouldSpace)
       const nextTrailing =
-        !isEmptyFlowCollection && isLine(trailing) && trailing.soft
-          ? line
-          : trailing
+        shouldSpace && isEmptyFlowCollection
+          ? trailing
+          : setFlatSpacing(trailing, shouldSpace)
 
       if (nextLeading !== leading || nextTrailing !== trailing) {
         nextDoc = {
@@ -190,7 +230,10 @@ function addFlowCollectionSpacing(doc: Doc): [Doc, boolean] {
       continue
     }
 
-    const [nextValue, nextChanged] = addFlowCollectionSpacing(value)
+    const [nextValue, nextChanged] = normalizeFlowCollectionSpacing(
+      value,
+      options,
+    )
     if (!nextChanged) {
       continue
     }
@@ -223,33 +266,41 @@ const plugin: Plugin = {
         print: (path: AstPath) => Doc,
       ): Doc {
         let doc = builtinYamlPlugin.printers.yaml.print(path, options, print)
+        const flowCollectionSpacing = {
+          braces: options.yamlSpacesWithinBraces !== false,
+          brackets: options.yamlSpacesWithinBrackets !== false,
+        } satisfies FlowCollectionSpacingOptions
 
         if (
-          !options.yamlIndentSequenceValues &&
+          !options.yamlIndentSequenceValue &&
           getBlockSequenceValue(path.node as AstNode)
         ) {
           doc = unwrapFirstSequenceValueIndent(doc)[0]
         }
 
-        if (options.yamlFlowCollectionSpacing) {
-          doc = addFlowCollectionSpacing(doc)[0]
-        }
+        doc = normalizeFlowCollectionSpacing(doc, flowCollectionSpacing)[0]
 
         return doc
       },
     },
   },
   options: {
-    yamlIndentSequenceValues: {
+    yamlIndentSequenceValue: {
       category: 'YAML',
       default: false,
       description: 'Indent sequence values within block mappings.',
       type: 'boolean',
     } satisfies SupportOption,
-    yamlFlowCollectionSpacing: {
+    yamlSpacesWithinBraces: {
       category: 'YAML',
-      default: false,
-      description: 'Put spaces inside YAML flow collection delimiters.',
+      default: true,
+      description: 'Put spaces inside YAML flow mapping braces.',
+      type: 'boolean',
+    } satisfies SupportOption,
+    yamlSpacesWithinBrackets: {
+      category: 'YAML',
+      default: true,
+      description: 'Put spaces inside YAML flow sequence brackets.',
       type: 'boolean',
     } satisfies SupportOption,
   },

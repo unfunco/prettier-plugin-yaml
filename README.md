@@ -30,25 +30,22 @@ Add the plugin to your Prettier configuration file:
 }
 ```
 
-This plugin disables indentation for sequence values in YAML files by default.
-To enable indentation, set the `yamlIndentSequenceValues` option to `true`:
-
-```json
-{
-  "yamlIndentSequenceValues": true
-}
-```
-
-To put spaces inside YAML flow collections, set
-`yamlFlowCollectionSpacing` to `true`:
-
-```json
-{
-  "yamlFlowCollectionSpacing": true
-}
-```
-
-This formats flow collections like `[ verify ]`, `[ ]`, and `{ }`.
+|              JetBrains EditorConfig property |      Prettier plugin       | Default |
+| -------------------------------------------: | :------------------------: | :-----: |
+|            `ij_yaml_align_values_properties` |            TODO            |  TODO   |
+|         `ij_yaml_autoinsert_sequence_marker` |            TODO            |  TODO   |
+|          `ij_yaml_block_mapping_on_new_line` |            TODO            |  TODO   |
+|              `ij_yaml_indent_sequence_value` | `yamlIndentSequenceValue`  | `false` |
+|                        `ij_yaml_indent_size` |            TODO            |  TODO   |
+|        `ij_yaml_keep_indents_on_empty_lines` |            TODO            |  TODO   |
+|                   `ij_yaml_keep_line_breaks` |            TODO            |  TODO   |
+|             `ij_yaml_line_comment_add_space` |            TODO            |  TODO   |
+| `ij_yaml_line_comment_add_space_on_reformat` |            TODO            |  TODO   |
+|       `ij_yaml_line_comment_at_first_column` |            TODO            |  TODO   |
+|               `ij_yaml_sequence_on_new_line` |            TODO            |  TODO   |
+|                 `ij_yaml_space_before_colon` |            TODO            |  TODO   |
+|               `ij_yaml_spaces_within_braces` |  `yamlSpacesWithinBraces`  | `true`  |
+|             `ij_yaml_spaces_within_brackets` | `yamlSpacesWithinBrackets` | `true`  |
 
 ## License
 
