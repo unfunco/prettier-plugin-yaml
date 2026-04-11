@@ -7,11 +7,10 @@
 > 🤖 Developed with AI assistance.
 
 A YAML plugin for Prettier that prevents the indentation of sequence values and
-aligns YAML flow collection spacing with JetBrains IDE defaults. This plugin
-lets you control whether list items are indented relative to their parent key
-and whether flow mappings or flow sequences keep spaces inside their
-delimiters, providing cleaner YAML configurations for tools like GitHub
-Actions, Kubernetes, and Ansible.
+can optionally add spaces inside flow collection delimiters. This plugin allows
+you to control whether list items are indented relative to their parent key and
+whether flow collections stay spaced, providing cleaner YAML configurations for
+tools like GitHub Actions, Kubernetes, and Ansible.
 
 ## Getting started
 
@@ -31,11 +30,25 @@ Add the plugin to your Prettier configuration file:
 }
 ```
 
-|  JetBrains EditorConfig property |      Prettier plugin       | Default |
-| -------------------------------: | :------------------------: | :-----: |
-|  `ij_yaml_indent_sequence_value` | `yamlIndentSequenceValues` | `false` |
-|   `ij_yaml_spaces_within_braces` |  `yamlSpacesWithinBraces`  | `true`  |
-| `ij_yaml_spaces_within_brackets` | `yamlSpacesWithinBrackets` | `true`  |
+|              JetBrains EditorConfig property |      Prettier plugin       | Default |
+| -------------------------------------------: | :------------------------: | :-----: |
+|            `ij_yaml_align_values_properties` |            TODO            |  TODO   |
+|         `ij_yaml_autoinsert_sequence_marker` |            TODO            |  TODO   |
+|          `ij_yaml_block_mapping_on_new_line` |            TODO            |  TODO   |
+|              `ij_yaml_indent_sequence_value` | `yamlIndentSequenceValues` | `false` |
+|                        `ij_yaml_indent_size` |            TODO            |  TODO   |
+|        `ij_yaml_keep_indents_on_empty_lines` |            TODO            |  TODO   |
+|                   `ij_yaml_keep_line_breaks` |            TODO            |  TODO   |
+|             `ij_yaml_line_comment_add_space` |            TODO            |  TODO   |
+| `ij_yaml_line_comment_add_space_on_reformat` |            TODO            |  TODO   |
+|       `ij_yaml_line_comment_at_first_column` |            TODO            |  TODO   |
+|               `ij_yaml_sequence_on_new_line` |            TODO            |  TODO   |
+|                 `ij_yaml_space_before_colon` |            TODO            |  TODO   |
+|               `ij_yaml_spaces_within_braces` |  `yamlSpacesWithinBraces`  | `true`  |
+|             `ij_yaml_spaces_within_brackets` | `yamlSpacesWithinBrackets` | `true`  |
+
+Rows with plugin option names are implemented today; rows marked `TODO` are not
+yet supported.
 
 ## License
 
