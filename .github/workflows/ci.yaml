@@ -35,6 +35,7 @@ jobs:
     needs: [verify]
     permissions:
       contents: write
+      id-token: write
       pull-requests: write
       packages: write
     runs-on: ubuntu-24.04
@@ -62,8 +63,6 @@ jobs:
         run: npm run build
       - name: Publish to NPM
         if: ${{ steps.release.outputs.releases_created == 'true' }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public
       - name: Setup Node.js (GPR)
         if: ${{ steps.release.outputs.releases_created == 'true' }}
