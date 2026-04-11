@@ -3,6 +3,9 @@
 [![CI](https://github.com/unfunco/prettier-plugin-yaml/actions/workflows/ci.yaml/badge.svg)](https://github.com/unfunco/prettier-plugin-yaml/actions/workflows/ci.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 
+> [!NOTE]
+> 🤖 Developed with AI assistance.
+
 A YAML plugin for Prettier that prevents the indentation of sequence values and
 can optionally add spaces inside flow collection delimiters. This plugin allows
 you to control whether list items are indented relative to their parent key and
