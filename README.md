@@ -47,9 +47,6 @@ Add the plugin to your Prettier configuration file:
 |               `ij_yaml_spaces_within_braces` |  `yamlSpacesWithinBraces`  | `true`  |
 |             `ij_yaml_spaces_within_brackets` | `yamlSpacesWithinBrackets` | `true`  |
 
-Rows with plugin option names are implemented today; rows marked `TODO` are not
-yet supported.
-
 ## License
 
 © 2023 [Daniel Morris]\
