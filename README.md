@@ -35,7 +35,7 @@ Add the plugin to your Prettier configuration file:
 |            `ij_yaml_align_values_properties` |            TODO            |  TODO   |
 |         `ij_yaml_autoinsert_sequence_marker` |            TODO            |  TODO   |
 |          `ij_yaml_block_mapping_on_new_line` |            TODO            |  TODO   |
-|              `ij_yaml_indent_sequence_value` | `yamlIndentSequenceValues` | `false` |
+|              `ij_yaml_indent_sequence_value` | `yamlIndentSequenceValue`  | `false` |
 |                        `ij_yaml_indent_size` |            TODO            |  TODO   |
 |        `ij_yaml_keep_indents_on_empty_lines` |            TODO            |  TODO   |
 |                   `ij_yaml_keep_line_breaks` |            TODO            |  TODO   |

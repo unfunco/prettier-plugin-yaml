@@ -272,7 +272,7 @@ const plugin: Plugin = {
         } satisfies FlowCollectionSpacingOptions
 
         if (
-          !options.yamlIndentSequenceValues &&
+          !options.yamlIndentSequenceValue &&
           getBlockSequenceValue(path.node as AstNode)
         ) {
           doc = unwrapFirstSequenceValueIndent(doc)[0]
@@ -285,7 +285,7 @@ const plugin: Plugin = {
     },
   },
   options: {
-    yamlIndentSequenceValues: {
+    yamlIndentSequenceValue: {
       category: 'YAML',
       default: false,
       description: 'Indent sequence values within block mappings.',

@@ -14,7 +14,7 @@ async function format(text: string, options: Record<string, unknown> = {}) {
   })
 }
 
-describe('yamlIndentSequenceValues: false (default)', () => {
+describe('yamlIndentSequenceValue: false (default)', () => {
   it('unindents top-level sequence values', async () => {
     const formatted = await format(`
 property:
@@ -88,7 +88,7 @@ property:
   })
 })
 
-describe('yamlIndentSequenceValues: true', () => {
+describe('yamlIndentSequenceValue: true', () => {
   it("preserves Prettier's native indented sequence output", async () => {
     const formatted = await format(
       `
@@ -98,7 +98,7 @@ property:
   - object_two: 2
     object_two_property_two: 2
 `,
-      { yamlIndentSequenceValues: true },
+      { yamlIndentSequenceValue: true },
     )
 
     expect(formatted).toBe(`\
