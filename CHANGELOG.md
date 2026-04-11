@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.3.1...v0.3.2) (2026-04-11)
+
+
+### 🧹 Miscellaneous
+
+* Pin GitHub Actions ([#31](https://github.com/unfunco/prettier-plugin-yaml/issues/31)) ([7ec57b5](https://github.com/unfunco/prettier-plugin-yaml/commit/7ec57b52cef098b521e5c7c8d6afd902c7236bcd))
+
 ## [0.3.1](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.3.0...v0.3.1) (2026-04-11)
 
 
