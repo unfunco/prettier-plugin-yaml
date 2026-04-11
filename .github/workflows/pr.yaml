@@ -23,5 +23,7 @@ jobs:
         run: npm run fmt:check
       - name: Check linting
         run: npm run lint:check
+      - name: Check types
+        run: npm run typecheck
       - name: Run tests
         run: npm run test

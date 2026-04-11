@@ -54,12 +54,13 @@
     "url": "https://github.com/unfunco/prettier-plugin-yaml"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --dts-resolve",
+    "build": "tsup src/index.ts --format esm && tsc -p tsconfig.build.json",
     "fmt:check": "prettier --check .",
     "fmt:fix": "prettier --write .",
     "lint:check": "eslint",
     "lint:fix": "eslint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
   },
   "type": "module",
   "types": "dist/index.d.ts",
