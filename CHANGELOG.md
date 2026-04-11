@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.1](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.3.0...v0.3.1) (2026-04-11)
+
+
+### 🐛 Bug fixes
+
+* Support TypeScript 6 builds ([#28](https://github.com/unfunco/prettier-plugin-yaml/issues/28)) ([f50b25f](https://github.com/unfunco/prettier-plugin-yaml/commit/f50b25ffd08c316fdfd241a1edb55b0d947e1df8))
+
+
+### 🧹 Miscellaneous
+
+* Use Trusted Publishing when pushing to NPM ([#30](https://github.com/unfunco/prettier-plugin-yaml/issues/30)) ([2197ecd](https://github.com/unfunco/prettier-plugin-yaml/commit/2197ecd09ccb8e80b758effdb3d906aa0efccd7d))
+
 ## [0.3.0](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.2.0...v0.3.0) (2026-04-11)
 
 
