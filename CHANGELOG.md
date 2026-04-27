@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.2](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.3.1...v0.3.2) (2026-04-27)
+
+
+### 🧹 Miscellaneous
+
+* Bump actions/setup-node from 6.3.0 to 6.4.0 ([#35](https://github.com/unfunco/prettier-plugin-yaml/issues/35)) ([e1a9a43](https://github.com/unfunco/prettier-plugin-yaml/commit/e1a9a4315505265406eaaab5ff754d4868430968))
+* Bump googleapis/release-please-action from 4.4.0 to 4.4.1 ([#33](https://github.com/unfunco/prettier-plugin-yaml/issues/33)) ([06939bd](https://github.com/unfunco/prettier-plugin-yaml/commit/06939bdaa7c612b11d9c231eabac6e3193fa27b1))
+* Bump typescript-eslint from 8.58.1 to 8.58.2 ([#34](https://github.com/unfunco/prettier-plugin-yaml/issues/34)) ([993efc0](https://github.com/unfunco/prettier-plugin-yaml/commit/993efc0e7553eb95bfba68952d4daf079ced9e63))
+* Pin GitHub Actions ([#31](https://github.com/unfunco/prettier-plugin-yaml/issues/31)) ([7ec57b5](https://github.com/unfunco/prettier-plugin-yaml/commit/7ec57b52cef098b521e5c7c8d6afd902c7236bcd))
+
 ## [0.3.1](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.3.0...v0.3.1) (2026-04-11)
 
 
