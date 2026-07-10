@@ -3,19 +3,18 @@
 [![CI](https://github.com/unfunco/prettier-plugin-yaml/actions/workflows/ci.yaml/badge.svg)](https://github.com/unfunco/prettier-plugin-yaml/actions/workflows/ci.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 
-> [!NOTE]
-> 🤖 Developed with AI assistance.
+> [!WARNING]
+> 🤖 This is pretty much entirely vibe-coded with Copilot.
 
-Yet another YAML plugin for Prettier. This exists because I got so attached to
-the way JetBrains IDEs format YAML that I couldn't bear to look at anything
-else. Indented sequence values? No fucking thanks. I've really only implemented
-enough to get the formatting I want, and when I say "I've," I mean I asked
-Copilot to do it. This is mostly vibe-coded. It's a YAML formatter that runs
-before committing, so the stakes are low. It does what I want it to.
+Yet another YAML plugin for Prettier. I got so attached to the way JetBrains
+IDEs format YAML that I couldn't bear to look at anything else. Indented
+sequence values? No fucking thanks.
 
-## Getting started
+I've only implemented enough to get the formatting I want, and by "I've", I
+mean I asked Copilot to do it. It runs before commits, so the stakes are low.
+It does what I want.
 
-### Installation and usage
+## Install
 
 ```bash
 npm install --save-dev prettier @unfunco/prettier-plugin-yaml
@@ -23,8 +22,8 @@ npm install --save-dev prettier @unfunco/prettier-plugin-yaml
 
 ## Usage
 
-Add the plugin to your Prettier configuration file and configure the options as
-desired if they differ from the defaults.
+Add the plugin to your Prettier configuration. Set whichever options differ
+from the defaults:
 
 ```json
 {
@@ -57,34 +56,32 @@ desired if they differ from the defaults.
 |               `ij_yaml_spaces_within_braces` |      `yamlSpacesWithinBraces`       |     `true`     |
 |             `ij_yaml_spaces_within_brackets` |     `yamlSpacesWithinBrackets`      |     `true`     |
 
-`ij_yaml_indent_size` is equivalent to Prettier's standard `tabWidth` option,
-which defaults to `2`; no YAML-specific option is needed.
+`ij_yaml_indent_size` maps to Prettier's standard `tabWidth` option, which
+defaults to `2`. No YAML-specific option is needed.
 
-`ij_yaml_autoinsert_sequence_marker` controls whether JetBrains editors insert a
-hyphen when Enter is pressed for a subsequent sequence item. This is interactive
-typing behavior, not document formatting, so it has no Prettier plugin option.
+`ij_yaml_autoinsert_sequence_marker` controls whether JetBrains adds a hyphen
+when you press Enter for the next sequence item. That's typing behaviour, not
+formatting, so there is no Prettier option for it.
 
-`ij_yaml_keep_indents_on_empty_lines` controls indentation whitespace on otherwise
-empty lines. Prettier removes trailing whitespace from blank lines when its Doc
-printer renders output. Plugin Doc transformations cannot and should not
-reintroduce that whitespace, so this setting has no Prettier plugin option.
+`ij_yaml_keep_indents_on_empty_lines` controls whitespace on otherwise empty
+lines. Prettier removes trailing whitespace from blank lines, and the plugin
+shouldn't put it back. There is no Prettier option for it.
 
-`ij_yaml_line_comment_add_space` controls whether the JetBrains editor's line
-comment/uncomment command adds a space after the comment marker. This is
-interactive editor behavior, not formatter behavior, so it has no Prettier plugin
-option. Reformat-time comment spacing is controlled separately by
+`ij_yaml_line_comment_add_space` controls whether JetBrains adds a space after
+the comment marker when you comment or uncomment a line. That's editor
+behaviour, not formatter behaviour, so there is no Prettier option for it.
+Reformat-time comment spacing is controlled separately by
 `ij_yaml_line_comment_add_space_on_reformat`.
 
-`ij_yaml_line_comment_at_first_column` controls whether the JetBrains editor's
-comment/uncomment command places the comment marker in column one or at the code
-indentation. Prettier instead structurally indents existing YAML comments, so this
-interactive editor setting has no Prettier plugin option.
+`ij_yaml_line_comment_at_first_column` controls whether JetBrains puts the
+comment marker in column one or at the code indentation. Prettier structurally
+indents existing YAML comments instead, so there is no Prettier option for it.
 
 ## Options
 
 ### `yamlAlignValuesProperties`
 
-Controls alignment of sibling block mapping properties:
+Controls how sibling block-mapping properties align:
 
 - `do_not_align` (default) uses normal YAML spacing.
 - `on_colon` aligns mapping colons.
@@ -102,37 +99,35 @@ the parent sequence marker. The default is `false`.
 
 ### `yamlKeepLineBreaks`
 
-Preserves a source line break before a simple plain or quoted scalar mapping value,
-including nested mappings and mappings in sequences. It also preserves the
-equivalent break before a simple scalar sequence item. The default is `true`; set
-it to `false` to use Prettier's native collapsing behavior.
+Preserves a source line break before a simple plain or quoted scalar mapping
+value, including nested mappings and mappings in sequences. It also preserves
+the equivalent break before a simple scalar sequence item. The default is
+`true`; set it to `false` to let Prettier collapse them.
 
 This option does not retain source indentation, trailing whitespace, or arbitrary
-collection layout. Scalar continuation wrapping, comments, and block scalars
-continue to use Prettier's native YAML Docs, and `printWidth` still controls
-width-based layout decisions.
+collection layout. Scalar continuation wrapping, comments, and block scalars use
+Prettier's normal YAML handling. `printWidth` still decides when lines wrap.
 
 ### `yamlLineCommentAddSpaceOnReformat`
 
-Adds one space after `#` when a standalone or inline YAML comment starts
-immediately after the marker. The default is `false`, which preserves Prettier's
-current comment text behavior.
+Adds one space after `#` when a standalone or inline YAML comment starts right
+after the marker. The default is `false`, which leaves Prettier's current comment
+text alone.
 
-The option only transforms YAML comment AST nodes, so hash characters in plain
-or quoted scalars and block scalar content are unchanged. Prettier represents
-suppression comments as ordinary YAML comment nodes; when enabled, this option
-also spaces unspaced suppression comments without changing their content or
-semantics.
+It only transforms YAML comment AST nodes, so hash characters in plain or quoted
+scalars and block scalar content stay unchanged. Prettier represents suppression
+comments as ordinary YAML comment nodes; when enabled, this also spaces unspaced
+suppression comments without changing their content or meaning.
 
 ### `yamlSpaceBeforeColon`
 
 Adds one space before mapping colons in block and flow mappings. The default is
-`false`, which uses Prettier's native `key: value` spacing. Mapping alignment
-still applies when enabled: `on_colon` aligns the colons with at least one
-pre-colon space, and `on_value` aligns value starts after adding that space.
+`false`, which uses Prettier's normal `key: value` spacing. Alignment still
+applies when enabled: `on_colon` aligns colons with at least one pre-colon space,
+and `on_value` aligns value starts after adding that space.
 
-Only mapping key separators are changed. Colons in scalar content, tags, anchors,
-directives, and document markers are left unchanged.
+Only mapping key separators change. Colons in scalar content, tags, anchors,
+directives, and document markers stay unchanged.
 
 ## License
 
