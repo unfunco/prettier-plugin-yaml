@@ -43,7 +43,7 @@ desired if they differ from the defaults.
 |         `ij_yaml_autoinsert_sequence_marker` |       Not applicable        |     `true`     |
 |          `ij_yaml_block_mapping_on_new_line` | `yamlBlockMappingOnNewLine` |    `false`     |
 |              `ij_yaml_indent_sequence_value` |  `yamlIndentSequenceValue`  |    `false`     |
-|                        `ij_yaml_indent_size` |            TODO             |      TODO      |
+|                        `ij_yaml_indent_size` |         `tabWidth`          |      `2`       |
 |        `ij_yaml_keep_indents_on_empty_lines` |            TODO             |      TODO      |
 |                   `ij_yaml_keep_line_breaks` |            TODO             |      TODO      |
 |             `ij_yaml_line_comment_add_space` |            TODO             |      TODO      |
@@ -53,6 +53,9 @@ desired if they differ from the defaults.
 |                 `ij_yaml_space_before_colon` |            TODO             |      TODO      |
 |               `ij_yaml_spaces_within_braces` |  `yamlSpacesWithinBraces`   |     `true`     |
 |             `ij_yaml_spaces_within_brackets` | `yamlSpacesWithinBrackets`  |     `true`     |
+
+`ij_yaml_indent_size` is equivalent to Prettier's standard `tabWidth` option,
+which defaults to `2`; no YAML-specific option is needed.
 
 `ij_yaml_autoinsert_sequence_marker` controls whether JetBrains editors insert a
 hyphen when Enter is pressed for a subsequent sequence item. This is interactive
