@@ -34,6 +34,7 @@ desired if they differ from the defaults.
   "yamlIndentSequenceValue": false,
   "yamlLineCommentAddSpaceOnReformat": false,
   "yamlSequenceOnNewLine": false,
+  "yamlSpaceBeforeColon": false,
   "yamlSpacesWithinBraces": true,
   "yamlSpacesWithinBrackets": true
 }
@@ -52,7 +53,7 @@ desired if they differ from the defaults.
 | `ij_yaml_line_comment_add_space_on_reformat` | `yamlLineCommentAddSpaceOnReformat` |    `false`     |
 |       `ij_yaml_line_comment_at_first_column` |           Not applicable            |     `true`     |
 |               `ij_yaml_sequence_on_new_line` |       `yamlSequenceOnNewLine`       |    `false`     |
-|                 `ij_yaml_space_before_colon` |                TODO                 |      TODO      |
+|                 `ij_yaml_space_before_colon` |       `yamlSpaceBeforeColon`        |    `false`     |
 |               `ij_yaml_spaces_within_braces` |      `yamlSpacesWithinBraces`       |     `true`     |
 |             `ij_yaml_spaces_within_brackets` |     `yamlSpacesWithinBrackets`      |     `true`     |
 
@@ -122,6 +123,16 @@ or quoted scalars and block scalar content are unchanged. Prettier represents
 suppression comments as ordinary YAML comment nodes; when enabled, this option
 also spaces unspaced suppression comments without changing their content or
 semantics.
+
+### `yamlSpaceBeforeColon`
+
+Adds one space before mapping colons in block and flow mappings. The default is
+`false`, which uses Prettier's native `key: value` spacing. Mapping alignment
+still applies when enabled: `on_colon` aligns the colons with at least one
+pre-colon space, and `on_value` aligns value starts after adding that space.
+
+Only mapping key separators are changed. Colons in scalar content, tags, anchors,
+directives, and document markers are left unchanged.
 
 ## License
 
