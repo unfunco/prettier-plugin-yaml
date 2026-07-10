@@ -7,6 +7,7 @@ export interface YamlPluginOptions {
   yamlIndentSequenceValue?: boolean
   yamlKeepLineBreaks?: boolean
   yamlLineCommentAddSpaceOnReformat?: boolean
+  yamlSequenceOnNewLine?: boolean
   yamlSpacesWithinBraces?: boolean
   yamlSpacesWithinBrackets?: boolean
 }

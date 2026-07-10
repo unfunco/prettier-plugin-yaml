@@ -33,6 +33,7 @@ desired if they differ from the defaults.
   "yamlBlockMappingOnNewLine": false,
   "yamlIndentSequenceValue": false,
   "yamlLineCommentAddSpaceOnReformat": false,
+  "yamlSequenceOnNewLine": false,
   "yamlSpacesWithinBraces": true,
   "yamlSpacesWithinBrackets": true
 }
@@ -50,7 +51,7 @@ desired if they differ from the defaults.
 |             `ij_yaml_line_comment_add_space` |           Not applicable            |    `false`     |
 | `ij_yaml_line_comment_add_space_on_reformat` | `yamlLineCommentAddSpaceOnReformat` |    `false`     |
 |       `ij_yaml_line_comment_at_first_column` |           Not applicable            |     `true`     |
-|               `ij_yaml_sequence_on_new_line` |                TODO                 |      TODO      |
+|               `ij_yaml_sequence_on_new_line` |       `yamlSequenceOnNewLine`       |    `false`     |
 |                 `ij_yaml_space_before_colon` |                TODO                 |      TODO      |
 |               `ij_yaml_spaces_within_braces` |      `yamlSpacesWithinBraces`       |     `true`     |
 |             `ij_yaml_spaces_within_brackets` |     `yamlSpacesWithinBrackets`      |     `true`     |
@@ -92,6 +93,11 @@ Controls alignment of sibling block mapping properties:
 
 Controls whether a block mapping used as a sequence item starts on the line after
 the sequence marker. The default is `false`.
+
+### `yamlSequenceOnNewLine`
+
+Controls whether a block sequence used as a sequence item starts on the line after
+the parent sequence marker. The default is `false`.
 
 ### `yamlKeepLineBreaks`
 

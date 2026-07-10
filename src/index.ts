@@ -15,6 +15,7 @@ import * as builtinYamlPlugin from 'prettier/plugins/yaml'
 export type { YamlPluginOptions } from './prettier.js'
 
 type Align = doc.builders.Align
+type BlockSequenceCollectionType = 'mapping' | 'sequence'
 type DocObject = Exclude<Doc, string | Doc[]>
 type DocRecord = DocObject &
   Partial<Record<(typeof DOC_CHILD_KEYS)[number], Doc>>
@@ -94,11 +95,15 @@ function getBlockSequenceValue(mappingItem: AstNode | null | undefined) {
   return sequence
 }
 
-function getBlockSequenceMapping(sequenceItem: AstNode | null | undefined) {
-  const mapping = sequenceItem?.children?.[0]
+function getBlockSequenceCollection(
+  sequenceItem: AstNode | null | undefined,
+  collectionType: BlockSequenceCollectionType,
+) {
+  const collection = sequenceItem?.children?.[0]
 
-  return sequenceItem?.type === 'sequenceItem' && mapping?.type === 'mapping'
-    ? mapping
+  return sequenceItem?.type === 'sequenceItem' &&
+    collection?.type === collectionType
+    ? collection
     : null
 }
 
@@ -153,9 +158,9 @@ function getMultilineSequenceScalar(sequenceItem: AstNode) {
     : null
 }
 
-function hasBlockMappingPrefix(mapping: AstNode) {
+function hasBlockCollectionPrefix(collection: AstNode) {
   return Boolean(
-    mapping.anchor ?? mapping.tag ?? mapping.leadingComments?.length,
+    collection.anchor ?? collection.tag ?? collection.leadingComments?.length,
   )
 }
 
@@ -379,13 +384,14 @@ function putBlockSequenceValueOnNewLine(doc: Doc, options: ParserOptions): Doc {
   ]
 }
 
-function putBlockSequenceMappingOnNewLine(
+function putBlockSequenceCollectionOnNewLine(
   doc: Doc,
   sequenceItem: AstNode,
   options: ParserOptions,
+  collectionType: BlockSequenceCollectionType,
 ): Doc {
-  const mapping = getBlockSequenceMapping(sequenceItem)
-  if (!mapping || hasBlockMappingPrefix(mapping)) {
+  const collection = getBlockSequenceCollection(sequenceItem, collectionType)
+  if (!collection || hasBlockCollectionPrefix(collection)) {
     return doc
   }
 
@@ -624,10 +630,20 @@ const plugin: Plugin = {
         }
 
         if (options.yamlBlockMappingOnNewLine) {
-          doc = putBlockSequenceMappingOnNewLine(
+          doc = putBlockSequenceCollectionOnNewLine(
             doc,
             path.node as AstNode,
             options,
+            'mapping',
+          )
+        }
+
+        if (options.yamlSequenceOnNewLine) {
+          doc = putBlockSequenceCollectionOnNewLine(
+            doc,
+            path.node as AstNode,
+            options,
+            'sequence',
           )
         }
 
@@ -682,6 +698,13 @@ const plugin: Plugin = {
       category: 'YAML',
       default: false,
       description: 'Add a space after YAML line comment markers on reformat.',
+      type: 'boolean',
+    } satisfies SupportOption,
+    yamlSequenceOnNewLine: {
+      category: 'YAML',
+      default: false,
+      description:
+        'Put block sequences in sequence items on the line after the marker.',
       type: 'boolean',
     } satisfies SupportOption,
     yamlSpacesWithinBraces: {
