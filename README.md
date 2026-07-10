@@ -46,7 +46,7 @@ desired if they differ from the defaults.
 |                        `ij_yaml_indent_size` |         `tabWidth`          |      `2`       |
 |        `ij_yaml_keep_indents_on_empty_lines` |       Not applicable        |    `false`     |
 |                   `ij_yaml_keep_line_breaks` |    `yamlKeepLineBreaks`     |     `true`     |
-|             `ij_yaml_line_comment_add_space` |            TODO             |      TODO      |
+|             `ij_yaml_line_comment_add_space` |       Not applicable        |    `false`     |
 | `ij_yaml_line_comment_add_space_on_reformat` |            TODO             |      TODO      |
 |       `ij_yaml_line_comment_at_first_column` |            TODO             |      TODO      |
 |               `ij_yaml_sequence_on_new_line` |            TODO             |      TODO      |
@@ -65,6 +65,12 @@ typing behavior, not document formatting, so it has no Prettier plugin option.
 empty lines. Prettier removes trailing whitespace from blank lines when its Doc
 printer renders output. Plugin Doc transformations cannot and should not
 reintroduce that whitespace, so this setting has no Prettier plugin option.
+
+`ij_yaml_line_comment_add_space` controls whether the JetBrains editor's line
+comment/uncomment command adds a space after the comment marker. This is
+interactive editor behavior, not formatter behavior, so it has no Prettier plugin
+option. Reformat-time comment spacing is controlled separately by
+`ij_yaml_line_comment_add_space_on_reformat`.
 
 ## Options
 
