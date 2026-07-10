@@ -42,6 +42,7 @@ interface AstNode {
     end: { line: number; offset: number }
   }
   tag?: AstNode | null
+  value?: string
 }
 
 interface FlowCollectionSpacingOptions {
@@ -269,6 +270,20 @@ function unwrapFirstSequenceValueIndent(doc: Doc) {
   return replaceFirstDoc(doc, (candidate) =>
     isSequenceValueIndent(candidate) ? candidate.contents : null,
   )
+}
+
+function addSpaceAfterLineCommentMarker(doc: Doc, node: AstNode) {
+  if (
+    node.type !== 'comment' ||
+    typeof node.value !== 'string' ||
+    !/^\S/u.test(node.value)
+  ) {
+    return doc
+  }
+
+  return replaceFirstDoc(doc, (candidate) =>
+    candidate === '#' ? '# ' : null,
+  )[0]
 }
 
 function preserveMappingScalarLineBreak(
@@ -574,6 +589,10 @@ const plugin: Plugin = {
           brackets: options.yamlSpacesWithinBrackets !== false,
         } satisfies FlowCollectionSpacingOptions
 
+        if (options.yamlLineCommentAddSpaceOnReformat) {
+          doc = addSpaceAfterLineCommentMarker(doc, path.node as AstNode)
+        }
+
         if (options.yamlKeepLineBreaks !== false) {
           doc = preserveMappingScalarLineBreak(
             doc,
@@ -657,6 +676,12 @@ const plugin: Plugin = {
       category: 'YAML',
       default: true,
       description: 'Preserve source line breaks before simple scalar values.',
+      type: 'boolean',
+    } satisfies SupportOption,
+    yamlLineCommentAddSpaceOnReformat: {
+      category: 'YAML',
+      default: false,
+      description: 'Add a space after YAML line comment markers on reformat.',
       type: 'boolean',
     } satisfies SupportOption,
     yamlSpacesWithinBraces: {

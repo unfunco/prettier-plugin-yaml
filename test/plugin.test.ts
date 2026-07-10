@@ -496,6 +496,162 @@ items:
   })
 })
 
+describe('yamlLineCommentAddSpaceOnReformat', () => {
+  it('preserves current comment text by default', async () => {
+    const formatted = await format(`\
+#standalone
+key: value #inline
+`)
+
+    expect(formatted).toBe(`\
+#standalone
+key: value #inline
+`)
+  })
+
+  it('adds a space to standalone and inline comments when enabled', async () => {
+    const formatted = await format(
+      `\
+#standalone
+key: value #inline
+`,
+      { yamlLineCommentAddSpaceOnReformat: true },
+    )
+
+    expect(formatted).toBe(`\
+# standalone
+key: value # inline
+`)
+  })
+
+  it('keeps spaced and bare comments and preserves native blank formatting', async () => {
+    const formatted = await format('# spaced\n#\n#   \nkey: value # spaced\n', {
+      yamlLineCommentAddSpaceOnReformat: true,
+    })
+
+    expect(formatted).toBe(`\
+# spaced
+#
+#
+key: value # spaced
+`)
+  })
+
+  it('does not change hashes in scalar content', async () => {
+    const formatted = await format(
+      `\
+plain: value#fragment
+double: "#quoted"
+single: '#quoted'
+literal: |
+  #block scalar
+  value#fragment
+folded: >
+  #block scalar
+  value#fragment
+`,
+      { yamlLineCommentAddSpaceOnReformat: true },
+    )
+
+    expect(formatted).toBe(`\
+plain: value#fragment
+double: "#quoted"
+single: "#quoted"
+literal: |
+  #block scalar
+  value#fragment
+folded: >
+  #block scalar
+  value#fragment
+`)
+  })
+
+  it('only changes comment nodes around directives, anchors, and tags', async () => {
+    const formatted = await format(
+      `\
+%YAML 1.2
+---
+defaults: &defaults
+  tagged: !custom value
+reference: *defaults
+#document comment
+`,
+      { yamlLineCommentAddSpaceOnReformat: true },
+    )
+
+    expect(formatted).toBe(`\
+%YAML 1.2
+---
+defaults: &defaults
+  tagged: !custom value
+reference: *defaults
+# document comment
+`)
+  })
+
+  it('handles nested mappings, sequences, and preserved line breaks', async () => {
+    const formatted = await format(
+      `\
+before: #key comment
+  commented value
+root:
+  #nested comment
+  child:
+    nested value
+items:
+  - #item comment
+    sequence value
+  - scalar #inline item comment
+`,
+      {
+        yamlKeepLineBreaks: true,
+        yamlLineCommentAddSpaceOnReformat: true,
+      },
+    )
+
+    expect(formatted).toBe(`\
+before: # key comment
+  commented value
+root:
+  # nested comment
+  child:
+    nested value
+items:
+- # item comment
+  sequence value
+- scalar # inline item comment
+`)
+  })
+
+  it('normalizes ordinary suppression comment nodes without changing semantics', async () => {
+    const formatted = await format(
+      `\
+#prettier-ignore
+ignored:   [a,b]
+`,
+      { yamlLineCommentAddSpaceOnReformat: true },
+    )
+
+    expect(formatted).toBe(`\
+# prettier-ignore
+ignored:   [a,b]
+`)
+  })
+
+  it('is idempotent', async () => {
+    const input = `\
+#standalone
+root:
+  child: value #inline
+`
+    const options = { yamlLineCommentAddSpaceOnReformat: true }
+    const once = await format(input, options)
+    const twice = await format(once, options)
+
+    expect(twice).toBe(once)
+  })
+})
+
 describe('yamlIndentSequenceValue: false (default)', () => {
   it('unindents top-level sequence values', async () => {
     const formatted = await format(`
