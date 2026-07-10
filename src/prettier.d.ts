@@ -5,6 +5,7 @@ export interface YamlPluginOptions {
   yamlAlignValuesProperties?: 'do_not_align' | 'on_colon' | 'on_value'
   yamlBlockMappingOnNewLine?: boolean
   yamlIndentSequenceValue?: boolean
+  yamlKeepLineBreaks?: boolean
   yamlSpacesWithinBraces?: boolean
   yamlSpacesWithinBrackets?: boolean
 }

@@ -292,6 +292,210 @@ root:
   })
 })
 
+describe('yamlKeepLineBreaks: true (default)', () => {
+  it('preserves a source line break before a scalar mapping value', async () => {
+    const formatted = await format(`
+key:
+  value
+same_line: value
+single:
+  'quoted value'
+double:
+  "quoted value"
+`)
+
+    expect(formatted).toBe(`\
+key:
+  value
+same_line: value
+single:
+  "quoted value"
+double:
+  "quoted value"
+`)
+  })
+
+  it('preserves nested mapping values, including mappings in sequences', async () => {
+    const formatted = await format(`
+root:
+  child:
+    nested value
+items:
+  - key:
+      item value
+`)
+
+    expect(formatted).toBe(`\
+root:
+  child:
+    nested value
+items:
+- key:
+    item value
+`)
+  })
+
+  it('preserves a source line break before a scalar sequence item', async () => {
+    const formatted = await format(`
+items:
+  -
+    first
+  - second
+`)
+
+    expect(formatted).toBe(`\
+items:
+-
+  first
+- second
+`)
+  })
+
+  it('uses native formatting for comments and block scalars', async () => {
+    const formatted = await format(`
+before: # stays with the key
+  commented value
+after:
+  value # stays with the value
+items:
+  - # stays with the item
+    sequence value
+block:
+  |
+    first
+    second
+`)
+
+    expect(formatted).toBe(`\
+before: # stays with the key
+  commented value
+after:
+  value # stays with the value
+items:
+- # stays with the item
+  sequence value
+block: |
+  first
+  second
+`)
+  })
+
+  it('normalizes indentation, trailing spaces, and scalar continuation lines', async () => {
+    const input =
+      'key:\n          value   \nwrapped:\n  one two\n  three four\n'
+    const formatted = await format(input)
+
+    expect(formatted).toBe(`\
+key:
+  value
+wrapped:
+  one two
+  three four
+`)
+  })
+
+  it('leaves collection wrapping to printWidth', async () => {
+    const formatted = await format(
+      `
+value:
+  [one, two, three, four]
+`,
+      { printWidth: 20 },
+    )
+
+    expect(formatted).toBe(`\
+value:
+  [
+    one,
+    two,
+    three,
+    four,
+  ]
+`)
+  })
+
+  it.each([
+    {
+      expected: `\
+items:
+-
+  scalar
+- key:
+    value
+`,
+      yamlIndentSequenceValue: false,
+    },
+    {
+      expected: `\
+items:
+  -
+    scalar
+  - key:
+      value
+`,
+      yamlIndentSequenceValue: true,
+    },
+  ])(
+    'works with yamlIndentSequenceValue=$yamlIndentSequenceValue',
+    async ({ expected, yamlIndentSequenceValue }) => {
+      const formatted = await format(
+        `
+items:
+  -
+    scalar
+  - key:
+      value
+`,
+        { yamlIndentSequenceValue },
+      )
+
+      expect(formatted).toBe(expected)
+    },
+  )
+
+  it('is idempotent', async () => {
+    const input = `\
+root:
+  value
+items:
+-
+  scalar
+- key:
+    nested value
+`
+    const once = await format(input)
+    const twice = await format(once)
+
+    expect(twice).toBe(once)
+  })
+})
+
+describe('yamlKeepLineBreaks: false', () => {
+  it("uses Prettier's native scalar collapsing behavior", async () => {
+    const formatted = await format(
+      `
+root:
+  child:
+    value
+items:
+  -
+    scalar
+  - key:
+      item value
+`,
+      { yamlKeepLineBreaks: false },
+    )
+
+    expect(formatted).toBe(`\
+root:
+  child: value
+items:
+- scalar
+- key: item value
+`)
+  })
+})
+
 describe('yamlIndentSequenceValue: false (default)', () => {
   it('unindents top-level sequence values', async () => {
     const formatted = await format(`

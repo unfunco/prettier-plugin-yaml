@@ -101,6 +101,57 @@ function getBlockSequenceMapping(sequenceItem: AstNode | null | undefined) {
     : null
 }
 
+function getSimpleScalar(node: AstNode | null | undefined) {
+  if (
+    !node?.type ||
+    !SCALAR_KEY_TYPES.has(node.type) ||
+    node.anchor ||
+    node.tag ||
+    node.leadingComments?.length
+  ) {
+    return null
+  }
+
+  return node
+}
+
+function startsOnLaterLine(
+  container: AstNode | null | undefined,
+  value: AstNode | null | undefined,
+) {
+  return Boolean(
+    container?.position &&
+    value?.position &&
+    value.position.start.line > container.position.start.line,
+  )
+}
+
+function getMultilineMappingScalar(mappingItem: AstNode) {
+  const mappingValue = mappingItem.children?.[1]
+  const scalar =
+    mappingValue?.children?.length === 1
+      ? getSimpleScalar(mappingValue.children[0])
+      : null
+
+  return mappingItem.type === 'mappingItem' &&
+    mappingValue?.type === 'mappingValue' &&
+    startsOnLaterLine(mappingValue, scalar)
+    ? scalar
+    : null
+}
+
+function getMultilineSequenceScalar(sequenceItem: AstNode) {
+  const scalar =
+    sequenceItem.children?.length === 1
+      ? getSimpleScalar(sequenceItem.children[0])
+      : null
+
+  return sequenceItem.type === 'sequenceItem' &&
+    startsOnLaterLine(sequenceItem, scalar)
+    ? scalar
+    : null
+}
+
 function hasBlockMappingPrefix(mapping: AstNode) {
   return Boolean(
     mapping.anchor ?? mapping.tag ?? mapping.leadingComments?.length,
@@ -220,13 +271,73 @@ function unwrapFirstSequenceValueIndent(doc: Doc) {
   )
 }
 
-function putBlockSequenceMappingOnNewLine(
+function preserveMappingScalarLineBreak(
+  doc: Doc,
+  mappingItem: AstNode,
+  options: ParserOptions,
+) {
+  if (!getMultilineMappingScalar(mappingItem)) {
+    return doc
+  }
+
+  return replaceFirstDoc(doc, (candidate) => {
+    if (
+      isAlign(candidate) &&
+      Array.isArray(candidate.contents) &&
+      candidate.contents[1] === ':' &&
+      isLine(candidate.contents[2]) &&
+      !candidate.contents[2].hard
+    ) {
+      return {
+        ...candidate,
+        contents: [
+          ...candidate.contents.slice(0, 2),
+          hardline,
+          ...candidate.contents.slice(3),
+        ],
+      }
+    }
+
+    if (!isGroup(candidate) || !Array.isArray(candidate.contents)) {
+      return null
+    }
+
+    const separatorIndex = candidate.contents.indexOf(': ')
+    if (
+      separatorIndex < 0 ||
+      separatorIndex === candidate.contents.length - 1
+    ) {
+      return null
+    }
+
+    return {
+      ...candidate,
+      contents: [
+        ...candidate.contents.slice(0, separatorIndex),
+        align(' '.repeat(options.tabWidth), [
+          ':',
+          hardline,
+          ...candidate.contents.slice(separatorIndex + 1),
+        ]),
+      ],
+    }
+  })[0]
+}
+
+function preserveSequenceScalarLineBreak(
   doc: Doc,
   sequenceItem: AstNode,
   options: ParserOptions,
-): Doc {
-  const mapping = getBlockSequenceMapping(sequenceItem)
-  if (!mapping || hasBlockMappingPrefix(mapping) || !Array.isArray(doc)) {
+) {
+  if (!getMultilineSequenceScalar(sequenceItem)) {
+    return doc
+  }
+
+  return putBlockSequenceValueOnNewLine(doc, options)
+}
+
+function putBlockSequenceValueOnNewLine(doc: Doc, options: ParserOptions): Doc {
+  if (!Array.isArray(doc)) {
     return doc
   }
 
@@ -253,6 +364,19 @@ function putBlockSequenceMappingOnNewLine(
   ]
 }
 
+function putBlockSequenceMappingOnNewLine(
+  doc: Doc,
+  sequenceItem: AstNode,
+  options: ParserOptions,
+): Doc {
+  const mapping = getBlockSequenceMapping(sequenceItem)
+  if (!mapping || hasBlockMappingPrefix(mapping)) {
+    return doc
+  }
+
+  return putBlockSequenceValueOnNewLine(doc, options)
+}
+
 function getComparableScalar(
   mappingItem: AstNode,
   childIndex: 0 | 1,
@@ -276,10 +400,13 @@ function getComparableScalar(
 function isComparableMappingItem(
   mappingItem: AstNode,
   alignment: Exclude<YamlAlignValuesProperties, 'do_not_align'>,
+  keepLineBreaks: boolean,
 ) {
   return Boolean(
     getComparableScalar(mappingItem, 0) &&
-    (alignment === 'on_colon' || getComparableScalar(mappingItem, 1)),
+    (alignment === 'on_colon' ||
+      (getComparableScalar(mappingItem, 1) &&
+        !(keepLineBreaks && getMultilineMappingScalar(mappingItem)))),
   )
 }
 
@@ -304,16 +431,19 @@ function alignMappingItem(
   options: ParserOptions,
   alignment: Exclude<YamlAlignValuesProperties, 'do_not_align'>,
 ) {
+  const keepLineBreaks = options.yamlKeepLineBreaks !== false
   if (
     mapping?.type !== 'mapping' ||
-    !isComparableMappingItem(mappingItem, alignment)
+    !isComparableMappingItem(mappingItem, alignment, keepLineBreaks)
   ) {
     return doc
   }
 
   const currentWidth = getMappingKeyWidth(mappingItem, options)
   const siblingWidths = mapping.children
-    ?.filter((sibling) => isComparableMappingItem(sibling, alignment))
+    ?.filter((sibling) =>
+      isComparableMappingItem(sibling, alignment, keepLineBreaks),
+    )
     .map((sibling) => getMappingKeyWidth(sibling, options))
     .filter((width): width is number => width !== null)
 
@@ -444,6 +574,19 @@ const plugin: Plugin = {
           brackets: options.yamlSpacesWithinBrackets !== false,
         } satisfies FlowCollectionSpacingOptions
 
+        if (options.yamlKeepLineBreaks !== false) {
+          doc = preserveMappingScalarLineBreak(
+            doc,
+            path.node as AstNode,
+            options,
+          )
+          doc = preserveSequenceScalarLineBreak(
+            doc,
+            path.node as AstNode,
+            options,
+          )
+        }
+
         if (alignment !== 'do_not_align') {
           doc = alignMappingItem(
             doc,
@@ -508,6 +651,12 @@ const plugin: Plugin = {
       category: 'YAML',
       default: false,
       description: 'Indent sequence values within block mappings.',
+      type: 'boolean',
+    } satisfies SupportOption,
+    yamlKeepLineBreaks: {
+      category: 'YAML',
+      default: true,
+      description: 'Preserve source line breaks before simple scalar values.',
       type: 'boolean',
     } satisfies SupportOption,
     yamlSpacesWithinBraces: {
