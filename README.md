@@ -44,7 +44,7 @@ desired if they differ from the defaults.
 |          `ij_yaml_block_mapping_on_new_line` | `yamlBlockMappingOnNewLine` |    `false`     |
 |              `ij_yaml_indent_sequence_value` |  `yamlIndentSequenceValue`  |    `false`     |
 |                        `ij_yaml_indent_size` |         `tabWidth`          |      `2`       |
-|        `ij_yaml_keep_indents_on_empty_lines` |            TODO             |      TODO      |
+|        `ij_yaml_keep_indents_on_empty_lines` |       Not applicable        |    `false`     |
 |                   `ij_yaml_keep_line_breaks` |            TODO             |      TODO      |
 |             `ij_yaml_line_comment_add_space` |            TODO             |      TODO      |
 | `ij_yaml_line_comment_add_space_on_reformat` |            TODO             |      TODO      |
@@ -60,6 +60,11 @@ which defaults to `2`; no YAML-specific option is needed.
 `ij_yaml_autoinsert_sequence_marker` controls whether JetBrains editors insert a
 hyphen when Enter is pressed for a subsequent sequence item. This is interactive
 typing behavior, not document formatting, so it has no Prettier plugin option.
+
+`ij_yaml_keep_indents_on_empty_lines` controls indentation whitespace on otherwise
+empty lines. Prettier removes trailing whitespace from blank lines when its Doc
+printer renders output. Plugin Doc transformations cannot and should not
+reintroduce that whitespace, so this setting has no Prettier plugin option.
 
 ## Options
 
