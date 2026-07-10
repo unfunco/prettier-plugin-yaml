@@ -14,6 +14,119 @@ async function format(text: string, options: Record<string, unknown> = {}) {
   })
 }
 
+describe('yamlAlignValuesProperties', () => {
+  it('does not align properties by default', async () => {
+    const formatted = await format(`
+a     : one
+longer:  two
+`)
+
+    expect(formatted).toBe(`\
+a: one
+longer: two
+`)
+  })
+
+  it('aligns colons across sibling block mapping entries', async () => {
+    const formatted = await format(
+      `
+a: one
+longer: two
+mid: three
+group:
+  child: value
+`,
+      { yamlAlignValuesProperties: 'on_colon' },
+    )
+
+    expect(formatted).toBe(`\
+a     : one
+longer: two
+mid   : three
+group :
+  child: value
+`)
+  })
+
+  it('aligns scalar values across sibling block mapping entries', async () => {
+    const formatted = await format(
+      `
+a: one
+longer: two
+mid: three
+`,
+      { yamlAlignValuesProperties: 'on_value' },
+    )
+
+    expect(formatted).toBe(`\
+a:      one
+longer: two
+mid:    three
+`)
+  })
+
+  it('keeps nested mapping alignment isolated', async () => {
+    const formatted = await format(
+      `
+a: one
+long: two
+nested:
+  x: one
+  longer: two
+z: three
+`,
+      { yamlAlignValuesProperties: 'on_value' },
+    )
+
+    expect(formatted).toBe(`\
+a:    one
+long: two
+nested:
+  x:      one
+  longer: two
+z:    three
+`)
+  })
+
+  it('does not align flow mappings or multiline scalar bodies', async () => {
+    const formatted = await format(
+      `
+a: one
+long: two
+very_long_flow: { short: x, longer: y }
+lit: |
+  body: stays
+`,
+      { yamlAlignValuesProperties: 'on_value' },
+    )
+
+    expect(formatted).toBe(`\
+a:    one
+long: two
+very_long_flow: { short: x, longer: y }
+lit:  |
+  body: stays
+`)
+  })
+
+  it.each(['on_colon', 'on_value'])(
+    'is idempotent with %s',
+    async (yamlAlignValuesProperties) => {
+      const input = `\
+a: one
+longer: two
+nested:
+  x: three
+  longest: four
+`
+      const once = await format(input, { yamlAlignValuesProperties })
+      const twice = await format(once, { yamlAlignValuesProperties })
+
+      expect(twice).toBe(once)
+    },
+  )
+})
+
 describe('yamlIndentSequenceValue: false (default)', () => {
   it('unindents top-level sequence values', async () => {
     const formatted = await format(`
