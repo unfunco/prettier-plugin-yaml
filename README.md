@@ -32,27 +32,28 @@ desired if they differ from the defaults.
   "yamlAlignValuesProperties": "on_value",
   "yamlBlockMappingOnNewLine": false,
   "yamlIndentSequenceValue": false,
+  "yamlLineCommentAddSpaceOnReformat": false,
   "yamlSpacesWithinBraces": true,
   "yamlSpacesWithinBrackets": true
 }
 ```
 
-|              JetBrains EditorConfig property |       Prettier plugin       |    Default     |
-| -------------------------------------------: | :-------------------------: | :------------: |
-|            `ij_yaml_align_values_properties` | `yamlAlignValuesProperties` | `do_not_align` |
-|         `ij_yaml_autoinsert_sequence_marker` |       Not applicable        |     `true`     |
-|          `ij_yaml_block_mapping_on_new_line` | `yamlBlockMappingOnNewLine` |    `false`     |
-|              `ij_yaml_indent_sequence_value` |  `yamlIndentSequenceValue`  |    `false`     |
-|                        `ij_yaml_indent_size` |         `tabWidth`          |      `2`       |
-|        `ij_yaml_keep_indents_on_empty_lines` |       Not applicable        |    `false`     |
-|                   `ij_yaml_keep_line_breaks` |    `yamlKeepLineBreaks`     |     `true`     |
-|             `ij_yaml_line_comment_add_space` |       Not applicable        |    `false`     |
-| `ij_yaml_line_comment_add_space_on_reformat` |            TODO             |      TODO      |
-|       `ij_yaml_line_comment_at_first_column` |            TODO             |      TODO      |
-|               `ij_yaml_sequence_on_new_line` |            TODO             |      TODO      |
-|                 `ij_yaml_space_before_colon` |            TODO             |      TODO      |
-|               `ij_yaml_spaces_within_braces` |  `yamlSpacesWithinBraces`   |     `true`     |
-|             `ij_yaml_spaces_within_brackets` | `yamlSpacesWithinBrackets`  |     `true`     |
+|              JetBrains EditorConfig property |           Prettier plugin           |    Default     |
+| -------------------------------------------: | :---------------------------------: | :------------: |
+|            `ij_yaml_align_values_properties` |     `yamlAlignValuesProperties`     | `do_not_align` |
+|         `ij_yaml_autoinsert_sequence_marker` |           Not applicable            |     `true`     |
+|          `ij_yaml_block_mapping_on_new_line` |     `yamlBlockMappingOnNewLine`     |    `false`     |
+|              `ij_yaml_indent_sequence_value` |      `yamlIndentSequenceValue`      |    `false`     |
+|                        `ij_yaml_indent_size` |             `tabWidth`              |      `2`       |
+|        `ij_yaml_keep_indents_on_empty_lines` |           Not applicable            |    `false`     |
+|                   `ij_yaml_keep_line_breaks` |        `yamlKeepLineBreaks`         |     `true`     |
+|             `ij_yaml_line_comment_add_space` |           Not applicable            |    `false`     |
+| `ij_yaml_line_comment_add_space_on_reformat` | `yamlLineCommentAddSpaceOnReformat` |    `false`     |
+|       `ij_yaml_line_comment_at_first_column` |                TODO                 |      TODO      |
+|               `ij_yaml_sequence_on_new_line` |                TODO                 |      TODO      |
+|                 `ij_yaml_space_before_colon` |                TODO                 |      TODO      |
+|               `ij_yaml_spaces_within_braces` |      `yamlSpacesWithinBraces`       |     `true`     |
+|             `ij_yaml_spaces_within_brackets` |     `yamlSpacesWithinBrackets`      |     `true`     |
 
 `ij_yaml_indent_size` is equivalent to Prettier's standard `tabWidth` option,
 which defaults to `2`; no YAML-specific option is needed.
@@ -98,6 +99,18 @@ This option does not retain source indentation, trailing whitespace, or arbitrar
 collection layout. Scalar continuation wrapping, comments, and block scalars
 continue to use Prettier's native YAML Docs, and `printWidth` still controls
 width-based layout decisions.
+
+### `yamlLineCommentAddSpaceOnReformat`
+
+Adds one space after `#` when a standalone or inline YAML comment starts
+immediately after the marker. The default is `false`, which preserves Prettier's
+current comment text behavior.
+
+The option only transforms YAML comment AST nodes, so hash characters in plain
+or quoted scalars and block scalar content are unchanged. Prettier represents
+suppression comments as ordinary YAML comment nodes; when enabled, this option
+also spaces unspaced suppression comments without changing their content or
+semantics.
 
 ## License
 
