@@ -39,7 +39,7 @@ desired if they differ from the defaults.
 |              JetBrains EditorConfig property |       Prettier plugin       |    Default     |
 | -------------------------------------------: | :-------------------------: | :------------: |
 |            `ij_yaml_align_values_properties` | `yamlAlignValuesProperties` | `do_not_align` |
-|         `ij_yaml_autoinsert_sequence_marker` |            TODO             |      TODO      |
+|         `ij_yaml_autoinsert_sequence_marker` |       Not applicable        |     `true`     |
 |          `ij_yaml_block_mapping_on_new_line` |            TODO             |      TODO      |
 |              `ij_yaml_indent_sequence_value` |  `yamlIndentSequenceValue`  |    `false`     |
 |                        `ij_yaml_indent_size` |            TODO             |      TODO      |
@@ -52,6 +52,10 @@ desired if they differ from the defaults.
 |                 `ij_yaml_space_before_colon` |            TODO             |      TODO      |
 |               `ij_yaml_spaces_within_braces` |  `yamlSpacesWithinBraces`   |     `true`     |
 |             `ij_yaml_spaces_within_brackets` | `yamlSpacesWithinBrackets`  |     `true`     |
+
+`ij_yaml_autoinsert_sequence_marker` controls whether JetBrains editors insert a
+hyphen when Enter is pressed for a subsequent sequence item. This is interactive
+typing behavior, not document formatting, so it has no Prettier plugin option.
 
 ## Options
 
