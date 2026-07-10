@@ -45,7 +45,7 @@ desired if they differ from the defaults.
 |              `ij_yaml_indent_sequence_value` |  `yamlIndentSequenceValue`  |    `false`     |
 |                        `ij_yaml_indent_size` |         `tabWidth`          |      `2`       |
 |        `ij_yaml_keep_indents_on_empty_lines` |       Not applicable        |    `false`     |
-|                   `ij_yaml_keep_line_breaks` |            TODO             |      TODO      |
+|                   `ij_yaml_keep_line_breaks` |    `yamlKeepLineBreaks`     |     `true`     |
 |             `ij_yaml_line_comment_add_space` |            TODO             |      TODO      |
 | `ij_yaml_line_comment_add_space_on_reformat` |            TODO             |      TODO      |
 |       `ij_yaml_line_comment_at_first_column` |            TODO             |      TODO      |
@@ -80,6 +80,18 @@ Controls alignment of sibling block mapping properties:
 
 Controls whether a block mapping used as a sequence item starts on the line after
 the sequence marker. The default is `false`.
+
+### `yamlKeepLineBreaks`
+
+Preserves a source line break before a simple plain or quoted scalar mapping value,
+including nested mappings and mappings in sequences. It also preserves the
+equivalent break before a simple scalar sequence item. The default is `true`; set
+it to `false` to use Prettier's native collapsing behavior.
+
+This option does not retain source indentation, trailing whitespace, or arbitrary
+collection layout. Scalar continuation wrapping, comments, and block scalars
+continue to use Prettier's native YAML Docs, and `printWidth` still controls
+width-based layout decisions.
 
 ## License
 
