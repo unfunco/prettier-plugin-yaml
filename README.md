@@ -29,28 +29,39 @@ desired if they differ from the defaults.
 ```json
 {
   "plugins": ["@unfunco/prettier-plugin-yaml"],
+  "yamlAlignValuesProperties": "on_value",
   "yamlIndentSequenceValue": false,
   "yamlSpacesWithinBraces": true,
   "yamlSpacesWithinBrackets": true
 }
 ```
 
-|              JetBrains EditorConfig property |      Prettier plugin       | Default |
-| -------------------------------------------: | :------------------------: | :-----: |
-|            `ij_yaml_align_values_properties` |            TODO            |  TODO   |
-|         `ij_yaml_autoinsert_sequence_marker` |            TODO            |  TODO   |
-|          `ij_yaml_block_mapping_on_new_line` |            TODO            |  TODO   |
-|              `ij_yaml_indent_sequence_value` | `yamlIndentSequenceValue`  | `false` |
-|                        `ij_yaml_indent_size` |            TODO            |  TODO   |
-|        `ij_yaml_keep_indents_on_empty_lines` |            TODO            |  TODO   |
-|                   `ij_yaml_keep_line_breaks` |            TODO            |  TODO   |
-|             `ij_yaml_line_comment_add_space` |            TODO            |  TODO   |
-| `ij_yaml_line_comment_add_space_on_reformat` |            TODO            |  TODO   |
-|       `ij_yaml_line_comment_at_first_column` |            TODO            |  TODO   |
-|               `ij_yaml_sequence_on_new_line` |            TODO            |  TODO   |
-|                 `ij_yaml_space_before_colon` |            TODO            |  TODO   |
-|               `ij_yaml_spaces_within_braces` |  `yamlSpacesWithinBraces`  | `true`  |
-|             `ij_yaml_spaces_within_brackets` | `yamlSpacesWithinBrackets` | `true`  |
+|              JetBrains EditorConfig property |       Prettier plugin       |    Default     |
+| -------------------------------------------: | :-------------------------: | :------------: |
+|            `ij_yaml_align_values_properties` | `yamlAlignValuesProperties` | `do_not_align` |
+|         `ij_yaml_autoinsert_sequence_marker` |            TODO             |      TODO      |
+|          `ij_yaml_block_mapping_on_new_line` |            TODO             |      TODO      |
+|              `ij_yaml_indent_sequence_value` |  `yamlIndentSequenceValue`  |    `false`     |
+|                        `ij_yaml_indent_size` |            TODO             |      TODO      |
+|        `ij_yaml_keep_indents_on_empty_lines` |            TODO             |      TODO      |
+|                   `ij_yaml_keep_line_breaks` |            TODO             |      TODO      |
+|             `ij_yaml_line_comment_add_space` |            TODO             |      TODO      |
+| `ij_yaml_line_comment_add_space_on_reformat` |            TODO             |      TODO      |
+|       `ij_yaml_line_comment_at_first_column` |            TODO             |      TODO      |
+|               `ij_yaml_sequence_on_new_line` |            TODO             |      TODO      |
+|                 `ij_yaml_space_before_colon` |            TODO             |      TODO      |
+|               `ij_yaml_spaces_within_braces` |  `yamlSpacesWithinBraces`   |     `true`     |
+|             `ij_yaml_spaces_within_brackets` | `yamlSpacesWithinBrackets`  |     `true`     |
+
+## Options
+
+### `yamlAlignValuesProperties`
+
+Controls alignment of sibling block mapping properties:
+
+- `do_not_align` (default) uses normal YAML spacing.
+- `on_colon` aligns mapping colons.
+- `on_value` aligns the start of scalar values.
 
 ## License
 

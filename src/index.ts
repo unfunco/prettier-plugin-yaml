@@ -3,6 +3,7 @@
 
 import {
   doc,
+  util,
   type AstPath,
   type Doc,
   type ParserOptions,
@@ -17,6 +18,7 @@ type DocRecord = DocObject &
   Partial<Record<(typeof DOC_CHILD_KEYS)[number], Doc>>
 type Group = doc.builders.Group
 type Line = doc.builders.Line
+type YamlAlignValuesProperties = 'do_not_align' | 'on_colon' | 'on_value'
 
 const { line, softline } = doc.builders
 
@@ -31,12 +33,36 @@ const DOC_CHILD_KEYS = [
 interface AstNode {
   type?: string
   children?: AstNode[]
-  position?: { start: { line: number } }
+  position?: {
+    start: { line: number; offset: number }
+    end: { line: number; offset: number }
+  }
 }
 
 interface FlowCollectionSpacingOptions {
   braces: boolean
   brackets: boolean
+}
+
+const SCALAR_KEY_TYPES = new Set(['plain', 'quoteDouble', 'quoteSingle'])
+const SCALAR_VALUE_TYPES = new Set([
+  ...SCALAR_KEY_TYPES,
+  'blockFolded',
+  'blockLiteral',
+])
+
+function getAlignment(options: ParserOptions): YamlAlignValuesProperties {
+  const alignment: unknown = options.yamlAlignValuesProperties
+
+  if (alignment === undefined || alignment === 'do_not_align') {
+    return 'do_not_align'
+  }
+
+  if (alignment === 'on_colon' || alignment === 'on_value') {
+    return alignment
+  }
+
+  throw new TypeError('Invalid yamlAlignValuesProperties value.')
 }
 
 function getBlockSequenceValue(mappingItem: AstNode | null | undefined) {
@@ -119,7 +145,15 @@ function setFlatSpacing(doc: Doc, shouldSpace: boolean) {
   return doc.soft ? doc : softline
 }
 
-function unwrapFirstSequenceValueIndent(doc: Doc): [Doc, boolean] {
+function replaceFirstDoc(
+  doc: Doc,
+  replace: (doc: Doc) => Doc | null,
+): [Doc, boolean] {
+  const replacement = replace(doc)
+  if (replacement !== null) {
+    return [replacement, true]
+  }
+
   if (!doc || typeof doc === 'string') {
     return [doc, false]
   }
@@ -133,16 +167,12 @@ function unwrapFirstSequenceValueIndent(doc: Doc): [Doc, boolean] {
         continue
       }
 
-      const [nextEntry, nextChanged] = unwrapFirstSequenceValueIndent(entry)
+      const [nextEntry, nextChanged] = replaceFirstDoc(entry, replace)
       changed = nextChanged
       nextDoc.push(nextEntry)
     }
 
     return [changed ? nextDoc : doc, changed]
-  }
-
-  if (isSequenceValueIndent(doc)) {
-    return [doc.contents, true]
   }
 
   for (const key of DOC_CHILD_KEYS) {
@@ -156,13 +186,103 @@ function unwrapFirstSequenceValueIndent(doc: Doc): [Doc, boolean] {
       continue
     }
 
-    const [nextValue, changed] = unwrapFirstSequenceValueIndent(value)
+    const [nextValue, changed] = replaceFirstDoc(value, replace)
     if (changed) {
       return [{ ...docRecord, [key]: nextValue } as unknown as Doc, true]
     }
   }
 
   return [doc, false]
+}
+
+function unwrapFirstSequenceValueIndent(doc: Doc) {
+  return replaceFirstDoc(doc, (candidate) =>
+    isSequenceValueIndent(candidate) ? candidate.contents : null,
+  )
+}
+
+function getComparableScalar(
+  mappingItem: AstNode,
+  childIndex: 0 | 1,
+): AstNode | null {
+  const child = mappingItem.children?.[childIndex]
+  const scalar = child?.children?.[0]
+  const scalarTypes = childIndex === 0 ? SCALAR_KEY_TYPES : SCALAR_VALUE_TYPES
+
+  if (
+    mappingItem.type !== 'mappingItem' ||
+    child?.children?.length !== 1 ||
+    !scalar?.type ||
+    !scalarTypes.has(scalar.type)
+  ) {
+    return null
+  }
+
+  return scalar
+}
+
+function isComparableMappingItem(
+  mappingItem: AstNode,
+  alignment: Exclude<YamlAlignValuesProperties, 'do_not_align'>,
+) {
+  return Boolean(
+    getComparableScalar(mappingItem, 0) &&
+    (alignment === 'on_colon' || getComparableScalar(mappingItem, 1)),
+  )
+}
+
+function getMappingKeyWidth(mappingItem: AstNode, options: ParserOptions) {
+  const key = getComparableScalar(mappingItem, 0)
+  if (!key?.position) {
+    return null
+  }
+
+  return util.getStringWidth(
+    options.originalText.slice(
+      key.position.start.offset,
+      key.position.end.offset,
+    ),
+  )
+}
+
+function alignMappingItem(
+  doc: Doc,
+  mappingItem: AstNode,
+  mapping: AstNode | null,
+  options: ParserOptions,
+  alignment: Exclude<YamlAlignValuesProperties, 'do_not_align'>,
+) {
+  if (
+    mapping?.type !== 'mapping' ||
+    !isComparableMappingItem(mappingItem, alignment)
+  ) {
+    return doc
+  }
+
+  const currentWidth = getMappingKeyWidth(mappingItem, options)
+  const siblingWidths = mapping.children
+    ?.filter((sibling) => isComparableMappingItem(sibling, alignment))
+    .map((sibling) => getMappingKeyWidth(sibling, options))
+    .filter((width): width is number => width !== null)
+
+  if (currentWidth === null || !siblingWidths?.length) {
+    return doc
+  }
+
+  const padding = Math.max(...siblingWidths) - currentWidth
+  if (padding === 0) {
+    return doc
+  }
+
+  return replaceFirstDoc(doc, (candidate) => {
+    if (candidate !== ':' && candidate !== ': ') {
+      return null
+    }
+
+    return alignment === 'on_colon'
+      ? `${' '.repeat(padding)}${candidate}`
+      : `:${' '.repeat(padding + (candidate === ': ' ? 1 : 0))}`
+  })[0]
 }
 
 function normalizeFlowCollectionSpacing(
@@ -266,10 +386,21 @@ const plugin: Plugin = {
         print: (path: AstPath) => Doc,
       ): Doc {
         let doc = builtinYamlPlugin.printers.yaml.print(path, options, print)
+        const alignment = getAlignment(options)
         const flowCollectionSpacing = {
           braces: options.yamlSpacesWithinBraces !== false,
           brackets: options.yamlSpacesWithinBrackets !== false,
         } satisfies FlowCollectionSpacingOptions
+
+        if (alignment !== 'do_not_align') {
+          doc = alignMappingItem(
+            doc,
+            path.node as AstNode,
+            path.parent as AstNode | null,
+            options,
+            alignment,
+          )
+        }
 
         if (
           !options.yamlIndentSequenceValue &&
@@ -285,6 +416,27 @@ const plugin: Plugin = {
     },
   },
   options: {
+    yamlAlignValuesProperties: {
+      category: 'YAML',
+      choices: [
+        {
+          description: 'Do not align mapping properties.',
+          value: 'do_not_align',
+        },
+        {
+          description: 'Align colons in sibling block mapping properties.',
+          value: 'on_colon',
+        },
+        {
+          description:
+            'Align scalar values in sibling block mapping properties.',
+          value: 'on_value',
+        },
+      ],
+      default: 'do_not_align',
+      description: 'Align values in YAML block mapping properties.',
+      type: 'choice',
+    } satisfies SupportOption,
     yamlIndentSequenceValue: {
       category: 'YAML',
       default: false,
