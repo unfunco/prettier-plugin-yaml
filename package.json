@@ -54,7 +54,7 @@
     "url": "https://github.com/unfunco/prettier-plugin-yaml"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm && tsc -p tsconfig.build.json",
+    "build": "tsup src/index.ts --format esm && tsc -p tsconfig.build.json && node --input-type=module --eval \"import { copyFileSync } from 'node:fs'; copyFileSync('src/prettier.d.ts', 'dist/prettier.d.ts')\"",
     "fmt:check": "prettier --check .",
     "fmt:fix": "prettier --write .",
     "lint:check": "eslint",

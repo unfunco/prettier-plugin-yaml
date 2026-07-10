@@ -127,6 +127,171 @@ nested:
   )
 })
 
+describe('yamlBlockMappingOnNewLine', () => {
+  it('keeps block sequence mappings inline by default', async () => {
+    const formatted = await format(`
+- key: value
+  other: value
+`)
+
+    expect(formatted).toBe(`\
+- key: value
+  other: value
+`)
+  })
+
+  it('puts top-level sequence mappings on a new line', async () => {
+    const formatted = await format(
+      `
+- key: value
+  other: value
+`,
+      { yamlBlockMappingOnNewLine: true },
+    )
+
+    expect(formatted).toBe(`\
+-
+  key: value
+  other: value
+`)
+  })
+
+  it('uses the configured indentation for nested sequence mappings', async () => {
+    const formatted = await format(
+      `
+root:
+  - name: parent
+    children:
+      - name: child
+        enabled: true
+`,
+      {
+        tabWidth: 4,
+        useTabs: true,
+        yamlBlockMappingOnNewLine: true,
+        yamlIndentSequenceValue: true,
+      },
+    )
+
+    expect(formatted).toBe(`\
+root:
+    -
+        name: parent
+        children:
+            -
+                name: child
+                enabled: true
+`)
+  })
+
+  it('does not change ordinary mappings or non-mapping sequence items', async () => {
+    const formatted = await format(
+      `
+metadata:
+  owner:
+    name: team
+items:
+  - scalar
+  - {key: value}
+`,
+      { yamlBlockMappingOnNewLine: true },
+    )
+
+    expect(formatted).toBe(`\
+metadata:
+  owner:
+    name: team
+items:
+- scalar
+- { key: value }
+`)
+  })
+
+  it('works with unindented mapping sequence values', async () => {
+    const formatted = await format(
+      `
+root:
+  - key: value
+    other: value
+`,
+      {
+        yamlBlockMappingOnNewLine: true,
+        yamlIndentSequenceValue: false,
+      },
+    )
+
+    expect(formatted).toBe(`\
+root:
+-
+  key: value
+  other: value
+`)
+  })
+
+  it('preserves comments, anchors, and tags before mappings', async () => {
+    const formatted = await format(
+      `
+- # item comment
+  key: value
+- &defaults
+  first: value
+  second: value
+- !custom
+  tagged: value
+`,
+      { yamlBlockMappingOnNewLine: true },
+    )
+
+    expect(formatted).toBe(`\
+- # item comment
+  key: value
+- &defaults
+  first: value
+  second: value
+- !custom
+  tagged: value
+`)
+  })
+
+  it('preserves mapping value alignment', async () => {
+    const formatted = await format(
+      `
+- short: one
+  much_longer: two
+`,
+      {
+        yamlAlignValuesProperties: 'on_value',
+        yamlBlockMappingOnNewLine: true,
+      },
+    )
+
+    expect(formatted).toBe(`\
+-
+  short:       one
+  much_longer: two
+`)
+  })
+
+  it('is idempotent', async () => {
+    const input = `\
+root:
+-
+  key: value
+  nested:
+  -
+    child: value
+`
+    const options = {
+      yamlBlockMappingOnNewLine: true,
+      yamlIndentSequenceValue: false,
+    }
+    const once = await format(input, options)
+    const twice = await format(once, options)
+
+    expect(twice).toBe(once)
+  })
+})
+
 describe('yamlIndentSequenceValue: false (default)', () => {
   it('unindents top-level sequence values', async () => {
     const formatted = await format(`
