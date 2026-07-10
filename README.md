@@ -49,7 +49,7 @@ desired if they differ from the defaults.
 |                   `ij_yaml_keep_line_breaks` |        `yamlKeepLineBreaks`         |     `true`     |
 |             `ij_yaml_line_comment_add_space` |           Not applicable            |    `false`     |
 | `ij_yaml_line_comment_add_space_on_reformat` | `yamlLineCommentAddSpaceOnReformat` |    `false`     |
-|       `ij_yaml_line_comment_at_first_column` |                TODO                 |      TODO      |
+|       `ij_yaml_line_comment_at_first_column` |           Not applicable            |     `true`     |
 |               `ij_yaml_sequence_on_new_line` |                TODO                 |      TODO      |
 |                 `ij_yaml_space_before_colon` |                TODO                 |      TODO      |
 |               `ij_yaml_spaces_within_braces` |      `yamlSpacesWithinBraces`       |     `true`     |
@@ -72,6 +72,11 @@ comment/uncomment command adds a space after the comment marker. This is
 interactive editor behavior, not formatter behavior, so it has no Prettier plugin
 option. Reformat-time comment spacing is controlled separately by
 `ij_yaml_line_comment_add_space_on_reformat`.
+
+`ij_yaml_line_comment_at_first_column` controls whether the JetBrains editor's
+comment/uncomment command places the comment marker in column one or at the code
+indentation. Prettier instead structurally indents existing YAML comments, so this
+interactive editor setting has no Prettier plugin option.
 
 ## Options
 
