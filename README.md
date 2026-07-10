@@ -30,6 +30,7 @@ desired if they differ from the defaults.
 {
   "plugins": ["@unfunco/prettier-plugin-yaml"],
   "yamlAlignValuesProperties": "on_value",
+  "yamlBlockMappingOnNewLine": false,
   "yamlIndentSequenceValue": false,
   "yamlSpacesWithinBraces": true,
   "yamlSpacesWithinBrackets": true
@@ -40,7 +41,7 @@ desired if they differ from the defaults.
 | -------------------------------------------: | :-------------------------: | :------------: |
 |            `ij_yaml_align_values_properties` | `yamlAlignValuesProperties` | `do_not_align` |
 |         `ij_yaml_autoinsert_sequence_marker` |       Not applicable        |     `true`     |
-|          `ij_yaml_block_mapping_on_new_line` |            TODO             |      TODO      |
+|          `ij_yaml_block_mapping_on_new_line` | `yamlBlockMappingOnNewLine` |    `false`     |
 |              `ij_yaml_indent_sequence_value` |  `yamlIndentSequenceValue`  |    `false`     |
 |                        `ij_yaml_indent_size` |            TODO             |      TODO      |
 |        `ij_yaml_keep_indents_on_empty_lines` |            TODO             |      TODO      |
@@ -66,6 +67,11 @@ Controls alignment of sibling block mapping properties:
 - `do_not_align` (default) uses normal YAML spacing.
 - `on_colon` aligns mapping colons.
 - `on_value` aligns the start of scalar values.
+
+### `yamlBlockMappingOnNewLine`
+
+Controls whether a block mapping used as a sequence item starts on the line after
+the sequence marker. The default is `false`.
 
 ## License
 

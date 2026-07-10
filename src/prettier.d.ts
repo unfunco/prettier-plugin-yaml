@@ -1,20 +1,19 @@
 // SPDX-FileCopyrightText: 2026 Daniel Morris <daniel@honestempire.com>
 // SPDX-License-Identifier: MIT
 
-export {}
+export interface YamlPluginOptions {
+  yamlAlignValuesProperties?: 'do_not_align' | 'on_colon' | 'on_value'
+  yamlBlockMappingOnNewLine?: boolean
+  yamlIndentSequenceValue?: boolean
+  yamlSpacesWithinBraces?: boolean
+  yamlSpacesWithinBrackets?: boolean
+}
 
 declare module 'prettier' {
-  interface Options {
-    yamlAlignValuesProperties?: 'do_not_align' | 'on_colon' | 'on_value'
-    yamlIndentSequenceValue?: boolean
-    yamlSpacesWithinBraces?: boolean
-    yamlSpacesWithinBrackets?: boolean
-  }
+  // Module augmentation requires mergeable interface declarations.
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface Options extends YamlPluginOptions {}
 
-  interface ParserOptions {
-    yamlAlignValuesProperties?: 'do_not_align' | 'on_colon' | 'on_value'
-    yamlIndentSequenceValue?: boolean
-    yamlSpacesWithinBraces?: boolean
-    yamlSpacesWithinBrackets?: boolean
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface ParserOptions extends YamlPluginOptions {}
 }

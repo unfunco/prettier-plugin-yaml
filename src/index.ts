@@ -12,6 +12,8 @@ import {
 } from 'prettier'
 import * as builtinYamlPlugin from 'prettier/plugins/yaml'
 
+export type { YamlPluginOptions } from './prettier.js'
+
 type Align = doc.builders.Align
 type DocObject = Exclude<Doc, string | Doc[]>
 type DocRecord = DocObject &
@@ -20,7 +22,7 @@ type Group = doc.builders.Group
 type Line = doc.builders.Line
 type YamlAlignValuesProperties = 'do_not_align' | 'on_colon' | 'on_value'
 
-const { line, softline } = doc.builders
+const { align, hardline, line, softline } = doc.builders
 
 const DOC_CHILD_KEYS = [
   'contents',
@@ -32,11 +34,14 @@ const DOC_CHILD_KEYS = [
 
 interface AstNode {
   type?: string
+  anchor?: AstNode | null
   children?: AstNode[]
+  leadingComments?: AstNode[]
   position?: {
     start: { line: number; offset: number }
     end: { line: number; offset: number }
   }
+  tag?: AstNode | null
 }
 
 interface FlowCollectionSpacingOptions {
@@ -86,6 +91,20 @@ function getBlockSequenceValue(mappingItem: AstNode | null | undefined) {
   }
 
   return sequence
+}
+
+function getBlockSequenceMapping(sequenceItem: AstNode | null | undefined) {
+  const mapping = sequenceItem?.children?.[0]
+
+  return sequenceItem?.type === 'sequenceItem' && mapping?.type === 'mapping'
+    ? mapping
+    : null
+}
+
+function hasBlockMappingPrefix(mapping: AstNode) {
+  return Boolean(
+    mapping.anchor ?? mapping.tag ?? mapping.leadingComments?.length,
+  )
 }
 
 function isSequenceValueIndent(doc: Doc): doc is Align {
@@ -199,6 +218,39 @@ function unwrapFirstSequenceValueIndent(doc: Doc) {
   return replaceFirstDoc(doc, (candidate) =>
     isSequenceValueIndent(candidate) ? candidate.contents : null,
   )
+}
+
+function putBlockSequenceMappingOnNewLine(
+  doc: Doc,
+  sequenceItem: AstNode,
+  options: ParserOptions,
+): Doc {
+  const mapping = getBlockSequenceMapping(sequenceItem)
+  if (!mapping || hasBlockMappingPrefix(mapping) || !Array.isArray(doc)) {
+    return doc
+  }
+
+  const [item, ...suffix] = doc
+  if (!isGroup(item) || !Array.isArray(item.contents)) {
+    return doc
+  }
+
+  const [marker, value, ...rest] = item.contents
+  if (marker !== '- ' || !isAlign(value)) {
+    return doc
+  }
+
+  return [
+    {
+      ...item,
+      contents: [
+        '-',
+        align(' '.repeat(options.tabWidth), [hardline, value.contents]),
+        ...rest,
+      ],
+    },
+    ...suffix,
+  ]
 }
 
 function getComparableScalar(
@@ -409,6 +461,14 @@ const plugin: Plugin = {
           doc = unwrapFirstSequenceValueIndent(doc)[0]
         }
 
+        if (options.yamlBlockMappingOnNewLine) {
+          doc = putBlockSequenceMappingOnNewLine(
+            doc,
+            path.node as AstNode,
+            options,
+          )
+        }
+
         doc = normalizeFlowCollectionSpacing(doc, flowCollectionSpacing)[0]
 
         return doc
@@ -436,6 +496,13 @@ const plugin: Plugin = {
       default: 'do_not_align',
       description: 'Align values in YAML block mapping properties.',
       type: 'choice',
+    } satisfies SupportOption,
+    yamlBlockMappingOnNewLine: {
+      category: 'YAML',
+      default: false,
+      description:
+        'Put block mappings in sequence items on the line after the marker.',
+      type: 'boolean',
     } satisfies SupportOption,
     yamlIndentSequenceValue: {
       category: 'YAML',
