@@ -127,6 +127,221 @@ nested:
   )
 })
 
+describe('yamlSpaceBeforeColon', () => {
+  it('uses native no-space mapping separators by default', async () => {
+    const formatted = await format(`
+block : value
+flow: { key : value, other: next }
+`)
+
+    expect(formatted).toBe(`\
+block: value
+flow: { key: value, other: next }
+`)
+  })
+
+  it('adds one space before block mapping colons', async () => {
+    const formatted = await format(
+      `
+short: one
+longer: two
+empty:
+explicit: null
+`,
+      { yamlSpaceBeforeColon: true },
+    )
+
+    expect(formatted).toBe(`\
+short : one
+longer : two
+empty :
+explicit : null
+`)
+  })
+
+  it('adds one space before flow mapping colons', async () => {
+    const formatted = await format(
+      `
+{key: value, nested: {inner: true}, list: [{x: y}]}
+`,
+      { printWidth: 40, yamlSpaceBeforeColon: true },
+    )
+
+    expect(formatted).toBe(`\
+{
+  key : value,
+  nested : { inner : true },
+  list : [ { x : y } ],
+}
+`)
+  })
+
+  it('handles nested mappings and mappings in sequences', async () => {
+    const formatted = await format(
+      `
+root:
+  child: value
+items:
+  - name: first
+    data: {key: value}
+`,
+      { yamlSpaceBeforeColon: true },
+    )
+
+    expect(formatted).toBe(`\
+root :
+  child : value
+items :
+  - name : first
+    data : { key : value }
+`)
+  })
+
+  it('handles quoted and compact complex mapping keys', async () => {
+    const formatted = await format(
+      `
+"quoted:key": value
+'other:key': next
+? [a, b]
+: complex
+`,
+      { yamlSpaceBeforeColon: true },
+    )
+
+    expect(formatted).toBe(`\
+"quoted:key" : value
+"other:key" : next
+[ a, b ] : complex
+`)
+  })
+
+  it('does not alter colon content or YAML structural markers', async () => {
+    const formatted = await format(
+      `
+%YAML 1.2
+---
+tagged: !<tag:example.com,2026:test> value
+anchored: &anchor value
+alias: *anchor
+url: https://example.com:8443/a
+time: 12:34:56
+quoted: "a:b"
+literal: |
+  body: stays
+...
+`,
+      { yamlSpaceBeforeColon: true },
+    )
+
+    expect(formatted).toBe(`\
+%YAML 1.2
+---
+tagged : !<tag:example.com,2026:test> value
+anchored : &anchor value
+alias : *anchor
+url : https://example.com:8443/a
+time : 12:34:56
+quoted : "a:b"
+literal : |
+  body: stays
+...
+`)
+  })
+
+  it('aligns colons with a base space before every separator', async () => {
+    const formatted = await format(
+      `
+a: one
+longer: two
+`,
+      {
+        yamlAlignValuesProperties: 'on_colon',
+        yamlSpaceBeforeColon: true,
+      },
+    )
+
+    expect(formatted).toBe(`\
+a      : one
+longer : two
+`)
+  })
+
+  it('aligns value starts while adding the pre-colon space', async () => {
+    const formatted = await format(
+      `
+a: one
+longer: two
+`,
+      {
+        yamlAlignValuesProperties: 'on_value',
+        yamlSpaceBeforeColon: true,
+      },
+    )
+
+    expect(formatted).toBe(`\
+a :      one
+longer : two
+`)
+  })
+
+  it('preserves source line breaks before simple scalar values', async () => {
+    const formatted = await format(
+      `
+short:
+  value
+longer: inline
+`,
+      { yamlSpaceBeforeColon: true },
+    )
+
+    expect(formatted).toBe(`\
+short :
+  value
+longer : inline
+`)
+  })
+
+  it('keeps wrapped explicit mapping separators valid', async () => {
+    const formatted = await format(
+      `
+? [a-very-long-complex-key-part, another-long-complex-key-part]
+: value
+`,
+      { printWidth: 30, yamlSpaceBeforeColon: true },
+    )
+
+    expect(formatted).toBe(`\
+? [
+    a-very-long-complex-key-part,
+    another-long-complex-key-part,
+  ]
+: value
+`)
+    await expect(format(formatted, { printWidth: 30 })).resolves.toBe(formatted)
+  })
+
+  it.each(['do_not_align', 'on_colon', 'on_value'] as const)(
+    'is idempotent with %s alignment',
+    async (yamlAlignValuesProperties) => {
+      const options = {
+        yamlAlignValuesProperties,
+        yamlSpaceBeforeColon: true,
+      }
+      const input = `\
+root:
+  short: one
+  longer: {nested: value}
+items:
+- key: "a:b"
+`
+      const once = await format(input, options)
+      const twice = await format(once, options)
+
+      expect(twice).toBe(once)
+    },
+  )
+})
+
 describe('yamlBlockMappingOnNewLine', () => {
   it('keeps block sequence mappings inline by default', async () => {
     const formatted = await format(`

@@ -22,6 +22,7 @@ type DocRecord = DocObject &
 type Group = doc.builders.Group
 type Line = doc.builders.Line
 type YamlAlignValuesProperties = 'do_not_align' | 'on_colon' | 'on_value'
+type YamlMappingSeparator = ':' | ': '
 
 const { align, hardline, line, softline } = doc.builders
 
@@ -271,6 +272,156 @@ function replaceFirstDoc(
   return [doc, false]
 }
 
+function isMappingSeparator(doc: Doc): doc is YamlMappingSeparator {
+  return doc === ':' || doc === ': '
+}
+
+function containsHardline(doc: Doc): boolean {
+  return isLine(doc)
+    ? Boolean(doc.hard)
+    : Array.isArray(doc) && doc.some(containsHardline)
+}
+
+function formatMappingSeparator(
+  separator: YamlMappingSeparator,
+  spaceBeforeColon: boolean,
+  alignment: YamlAlignValuesProperties,
+  padding: number,
+) {
+  const beforeColon =
+    (spaceBeforeColon ? 1 : 0) + (alignment === 'on_colon' ? padding : 0)
+  const afterColon =
+    (separator === ': ' ? 1 : 0) + (alignment === 'on_value' ? padding : 0)
+
+  return `${' '.repeat(beforeColon)}:${' '.repeat(afterColon)}`
+}
+
+function mapMappingSeparatorContainer(
+  doc: Doc,
+  format: (separator: YamlMappingSeparator) => Doc,
+): [Doc, boolean] {
+  if (!isDocObject(doc)) {
+    return [doc, false]
+  }
+
+  const docRecord = doc as unknown as Record<string, Doc | undefined>
+  let nextDoc = doc
+  let changed = false
+
+  for (const key of ['contents', 'breakContents', 'flatContents'] as const) {
+    const value = docRecord[key]
+    if (value === undefined) {
+      continue
+    }
+
+    const [nextValue, nextChanged] = mapMappingSeparatorLayout(value, format)
+    if (!nextChanged) {
+      continue
+    }
+
+    if (!changed) {
+      nextDoc = { ...doc }
+      changed = true
+    }
+
+    ;(nextDoc as unknown as Record<string, Doc>)[key] = nextValue
+  }
+
+  if (Array.isArray(docRecord.expandedStates)) {
+    let expandedStatesChanged = false
+    const nextExpandedStates: Doc[] = []
+    for (const state of docRecord.expandedStates) {
+      const [nextState, nextChanged] = mapMappingSeparatorLayout(state, format)
+      expandedStatesChanged ||= nextChanged
+      nextExpandedStates.push(nextState)
+    }
+
+    if (expandedStatesChanged) {
+      if (!changed) {
+        nextDoc = { ...doc }
+        changed = true
+      }
+
+      ;(nextDoc as unknown as Record<string, Doc>).expandedStates =
+        nextExpandedStates
+    }
+  }
+
+  return [changed ? nextDoc : doc, changed]
+}
+
+function mapMappingSeparatorLayout(
+  doc: Doc,
+  format: (separator: YamlMappingSeparator) => Doc,
+): [Doc, boolean] {
+  if (isMappingSeparator(doc)) {
+    return [format(doc), true]
+  }
+
+  if (Array.isArray(doc)) {
+    const separatorIndex = doc.findIndex(isMappingSeparator)
+    if (separatorIndex >= 0) {
+      const separator = doc[separatorIndex]
+      const startsOnNewLine = doc
+        .slice(0, separatorIndex)
+        .some(containsHardline)
+      // A wrapped explicit key uses `: value` on its own line.
+      if (startsOnNewLine) {
+        return [doc, false]
+      }
+
+      if (isMappingSeparator(separator)) {
+        const nextDoc = [...doc]
+        nextDoc[separatorIndex] = format(separator)
+        return [nextDoc, true]
+      }
+    }
+
+    let changed = false
+    const nextDoc: Doc[] = []
+    for (const [index, entry] of doc.entries()) {
+      // The key Doc is first; never search its scalar content for separators.
+      if (index === 0) {
+        nextDoc.push(entry)
+        continue
+      }
+
+      const [nextEntry, nextChanged] = mapMappingSeparatorContainer(
+        entry,
+        format,
+      )
+      changed ||= nextChanged
+      nextDoc.push(nextEntry)
+    }
+
+    return [changed ? nextDoc : doc, changed]
+  }
+
+  return mapMappingSeparatorContainer(doc, format)
+}
+
+function mapMappingItemSeparator(
+  doc: Doc,
+  format: (separator: YamlMappingSeparator) => Doc,
+) {
+  if (Array.isArray(doc)) {
+    let changed = false
+    const nextDoc: Doc[] = []
+    for (const entry of doc) {
+      const [nextEntry, nextChanged] = mapMappingSeparatorContainer(
+        entry,
+        format,
+      )
+      changed ||= nextChanged
+      nextDoc.push(nextEntry)
+    }
+
+    return changed ? nextDoc : doc
+  }
+
+  return mapMappingSeparatorContainer(doc, format)[0]
+}
+
 function unwrapFirstSequenceValueIndent(doc: Doc) {
   return replaceFirstDoc(doc, (candidate) =>
     isSequenceValueIndent(candidate) ? candidate.contents : null,
@@ -445,8 +596,7 @@ function getMappingKeyWidth(mappingItem: AstNode, options: ParserOptions) {
   )
 }
 
-function alignMappingItem(
-  doc: Doc,
+function getMappingAlignmentPadding(
   mappingItem: AstNode,
   mapping: AstNode | null,
   options: ParserOptions,
@@ -454,10 +604,11 @@ function alignMappingItem(
 ) {
   const keepLineBreaks = options.yamlKeepLineBreaks !== false
   if (
+    mappingItem.type !== 'mappingItem' ||
     mapping?.type !== 'mapping' ||
     !isComparableMappingItem(mappingItem, alignment, keepLineBreaks)
   ) {
-    return doc
+    return null
   }
 
   const currentWidth = getMappingKeyWidth(mappingItem, options)
@@ -468,24 +619,43 @@ function alignMappingItem(
     .map((sibling) => getMappingKeyWidth(sibling, options))
     .filter((width): width is number => width !== null)
 
-  if (currentWidth === null || !siblingWidths?.length) {
+  return currentWidth === null || !siblingWidths?.length
+    ? null
+    : Math.max(...siblingWidths) - currentWidth
+}
+
+function formatMappingItemSeparator(
+  doc: Doc,
+  mappingItem: AstNode,
+  mapping: AstNode | null,
+  options: ParserOptions,
+  alignment: YamlAlignValuesProperties,
+) {
+  if (
+    mappingItem.type !== 'mappingItem' &&
+    mappingItem.type !== 'flowMappingItem'
+  ) {
     return doc
   }
 
-  const padding = Math.max(...siblingWidths) - currentWidth
-  if (padding === 0) {
+  const spaceBeforeColon = options.yamlSpaceBeforeColon === true
+  const padding =
+    alignment === 'do_not_align'
+      ? null
+      : getMappingAlignmentPadding(mappingItem, mapping, options, alignment)
+  const appliedAlignment = padding === null ? 'do_not_align' : alignment
+  if (!spaceBeforeColon && appliedAlignment === 'do_not_align') {
     return doc
   }
 
-  return replaceFirstDoc(doc, (candidate) => {
-    if (candidate !== ':' && candidate !== ': ') {
-      return null
-    }
-
-    return alignment === 'on_colon'
-      ? `${' '.repeat(padding)}${candidate}`
-      : `:${' '.repeat(padding + (candidate === ': ' ? 1 : 0))}`
-  })[0]
+  return mapMappingItemSeparator(doc, (separator) =>
+    formatMappingSeparator(
+      separator,
+      spaceBeforeColon,
+      appliedAlignment,
+      padding ?? 0,
+    ),
+  )
 }
 
 function normalizeFlowCollectionSpacing(
@@ -612,15 +782,13 @@ const plugin: Plugin = {
           )
         }
 
-        if (alignment !== 'do_not_align') {
-          doc = alignMappingItem(
-            doc,
-            path.node as AstNode,
-            path.parent as AstNode | null,
-            options,
-            alignment,
-          )
-        }
+        doc = formatMappingItemSeparator(
+          doc,
+          path.node as AstNode,
+          path.parent as AstNode | null,
+          options,
+          alignment,
+        )
 
         if (
           !options.yamlIndentSequenceValue &&
@@ -705,6 +873,12 @@ const plugin: Plugin = {
       default: false,
       description:
         'Put block sequences in sequence items on the line after the marker.',
+      type: 'boolean',
+    } satisfies SupportOption,
+    yamlSpaceBeforeColon: {
+      category: 'YAML',
+      default: false,
+      description: 'Put one space before YAML mapping colons.',
       type: 'boolean',
     } satisfies SupportOption,
     yamlSpacesWithinBraces: {
