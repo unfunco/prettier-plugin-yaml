@@ -292,6 +292,247 @@ root:
   })
 })
 
+describe('yamlSequenceOnNewLine', () => {
+  it('keeps nested block sequences inline by default', async () => {
+    const formatted = await format(`
+- - one
+  - two
+`)
+
+    expect(formatted).toBe(`\
+- - one
+  - two
+`)
+  })
+
+  it('puts multiple top-level nested block sequences on new lines', async () => {
+    const formatted = await format(
+      `
+- - one
+  - two
+- - three
+  - four
+`,
+      { yamlSequenceOnNewLine: true },
+    )
+
+    expect(formatted).toBe(`\
+-
+  - one
+  - two
+-
+  - three
+  - four
+`)
+  })
+
+  it('puts recursively nested block sequences on new lines', async () => {
+    const formatted = await format(
+      `
+root:
+  - - first
+    - - second
+      - third
+`,
+      { yamlSequenceOnNewLine: true },
+    )
+
+    expect(formatted).toBe(`\
+root:
+-
+  - first
+  -
+    - second
+    - third
+`)
+  })
+
+  it('uses the configured indentation', async () => {
+    const formatted = await format(
+      `
+root:
+    - - one
+      - two
+`,
+      {
+        tabWidth: 4,
+        yamlIndentSequenceValue: true,
+        yamlSequenceOnNewLine: true,
+      },
+    )
+
+    expect(formatted).toBe(`\
+root:
+    -
+        - one
+        - two
+`)
+  })
+
+  it.each([
+    {
+      expected: `\
+root:
+-
+  - one
+  - two
+`,
+      yamlIndentSequenceValue: false,
+    },
+    {
+      expected: `\
+root:
+  -
+    - one
+    - two
+`,
+      yamlIndentSequenceValue: true,
+    },
+  ])(
+    'works with yamlIndentSequenceValue=$yamlIndentSequenceValue',
+    async ({ expected, yamlIndentSequenceValue }) => {
+      const formatted = await format(
+        `
+root:
+  - - one
+    - two
+`,
+        { yamlIndentSequenceValue, yamlSequenceOnNewLine: true },
+      )
+
+      expect(formatted).toBe(expected)
+    },
+  )
+
+  it('works independently from yamlBlockMappingOnNewLine', async () => {
+    const formatted = await format(
+      `
+- - one
+  - two
+- key: value
+  other: value
+`,
+      {
+        yamlBlockMappingOnNewLine: true,
+        yamlSequenceOnNewLine: true,
+      },
+    )
+
+    expect(formatted).toBe(`\
+-
+  - one
+  - two
+-
+  key: value
+  other: value
+`)
+  })
+
+  it('does not change scalar, flow collection, mapping, or ordinary sequence values', async () => {
+    const formatted = await format(
+      `
+- scalar
+- [one, two]
+- {key: value}
+- key: value
+  other: value
+- items:
+    - ordinary
+`,
+      { yamlSequenceOnNewLine: true },
+    )
+
+    expect(formatted).toBe(`\
+- scalar
+- [ one, two ]
+- { key: value }
+- key: value
+  other: value
+- items:
+  - ordinary
+`)
+  })
+
+  it('preserves comments, anchors, and tags before nested block sequences', async () => {
+    const formatted = await format(
+      `
+- # item comment
+  - one
+  - two
+- &items
+  - three
+  - four
+- !custom
+  - five
+  - six
+`,
+      { yamlSequenceOnNewLine: true },
+    )
+
+    expect(formatted).toBe(`\
+- # item comment
+  - one
+  - two
+- &items
+  - three
+  - four
+- !custom
+  - five
+  - six
+`)
+  })
+
+  it.each([
+    {
+      expected: `\
+-
+  -
+    one
+  - two
+`,
+      yamlKeepLineBreaks: true,
+    },
+    {
+      expected: `\
+-
+  - one
+  - two
+`,
+      yamlKeepLineBreaks: false,
+    },
+  ])(
+    'works with yamlKeepLineBreaks=$yamlKeepLineBreaks',
+    async ({ expected, yamlKeepLineBreaks }) => {
+      const formatted = await format(
+        `
+- -
+    one
+  - two
+`,
+        { yamlKeepLineBreaks, yamlSequenceOnNewLine: true },
+      )
+
+      expect(formatted).toBe(expected)
+    },
+  )
+
+  it('is idempotent', async () => {
+    const input = `\
+root:
+-
+  - one
+  -
+    - two
+    - three
+`
+    const options = { yamlSequenceOnNewLine: true }
+    const once = await format(input, options)
+    const twice = await format(once, options)
+
+    expect(twice).toBe(once)
+  })
+})
+
 describe('yamlKeepLineBreaks: true (default)', () => {
   it('preserves a source line break before a scalar mapping value', async () => {
     const formatted = await format(`
