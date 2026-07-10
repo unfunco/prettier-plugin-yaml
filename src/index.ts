@@ -263,7 +263,7 @@ const plugin: Plugin = {
       print(
         path: AstPath,
         options: ParserOptions,
-        print: (path: AstPath) => Doc,
+        print: Parameters<typeof builtinYamlPlugin.printers.yaml.print>[2],
       ): Doc {
         let doc = builtinYamlPlugin.printers.yaml.print(path, options, print)
         const flowCollectionSpacing = {
