@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.4.1](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.4.0...v0.4.1) (2026-09-01)
+
+
+### 🧹 Miscellaneous
+
+* Bump actions/checkout from 7.0.0 to 7.0.1 ([#86](https://github.com/unfunco/prettier-plugin-yaml/issues/86)) ([3eb748c](https://github.com/unfunco/prettier-plugin-yaml/commit/3eb748c9833673b9be7e0dae63a3add83794395c))
+* Bump actions/setup-node from 6.4.0 to 7.0.0 ([#85](https://github.com/unfunco/prettier-plugin-yaml/issues/85)) ([1d6d050](https://github.com/unfunco/prettier-plugin-yaml/commit/1d6d050829f08e9e9a724c85d91f545cb91e6ebf))
+* Bump eslint from 10.6.0 to 10.8.0 ([#89](https://github.com/unfunco/prettier-plugin-yaml/issues/89)) ([adf88c5](https://github.com/unfunco/prettier-plugin-yaml/commit/adf88c570b2dafd64682bf895ac7e1e13bf30de9))
+* Bump eslint from 10.8.0 to 10.8.1 ([#92](https://github.com/unfunco/prettier-plugin-yaml/issues/92)) ([b0c799b](https://github.com/unfunco/prettier-plugin-yaml/commit/b0c799b80eb8b85c6485835b241b1ae575878dfc))
+* Bump eslint from 10.8.1 to 10.9.1 ([#94](https://github.com/unfunco/prettier-plugin-yaml/issues/94)) ([3f39b11](https://github.com/unfunco/prettier-plugin-yaml/commit/3f39b111684493033b159b402e5f1e13ebabd286))
+* Bump prettier from 3.9.4 to 3.9.6 ([#88](https://github.com/unfunco/prettier-plugin-yaml/issues/88)) ([82e7a84](https://github.com/unfunco/prettier-plugin-yaml/commit/82e7a84547ddb32d0379827bdf69354db06146a1))
+* Bump typescript-eslint from 8.62.1 to 8.63.0 ([#79](https://github.com/unfunco/prettier-plugin-yaml/issues/79)) ([393fb23](https://github.com/unfunco/prettier-plugin-yaml/commit/393fb236432fc3038b837711eccc3348e2abdbde))
+* Bump typescript-eslint from 8.63.0 to 8.65.0 ([#87](https://github.com/unfunco/prettier-plugin-yaml/issues/87)) ([d375364](https://github.com/unfunco/prettier-plugin-yaml/commit/d375364cc98943244f86ad20e0057505afa52fd3))
+* Bump typescript-eslint from 8.65.0 to 8.66.0 ([#90](https://github.com/unfunco/prettier-plugin-yaml/issues/90)) ([3aaa4df](https://github.com/unfunco/prettier-plugin-yaml/commit/3aaa4dfbf2df4fd60eb5ee2dd07bcd53a5b84c9c))
+* Bump typescript-eslint from 8.66.0 to 8.67.0 ([#93](https://github.com/unfunco/prettier-plugin-yaml/issues/93)) ([b6f7c41](https://github.com/unfunco/prettier-plugin-yaml/commit/b6f7c415cda8d5c490d9b17ec4923630b64cb8d4))
+* Bump typescript-eslint from 8.67.0 to 8.68.0 ([#96](https://github.com/unfunco/prettier-plugin-yaml/issues/96)) ([c84da33](https://github.com/unfunco/prettier-plugin-yaml/commit/c84da33d83add9dacdaba27ad3d6f312f64d57a9))
+* Bump vitest from 4.1.10 to 4.1.11 ([#95](https://github.com/unfunco/prettier-plugin-yaml/issues/95)) ([fb7281b](https://github.com/unfunco/prettier-plugin-yaml/commit/fb7281b3eb30e5286f8cef33ca860513210b1811))
+* Bump vitest from 4.1.9 to 4.1.10 ([#78](https://github.com/unfunco/prettier-plugin-yaml/issues/78)) ([3ad0a4d](https://github.com/unfunco/prettier-plugin-yaml/commit/3ad0a4dcc1d8af49555ec730743527887e5aa4c7))
+* Run npm audit fix ([#91](https://github.com/unfunco/prettier-plugin-yaml/issues/91)) ([35daab6](https://github.com/unfunco/prettier-plugin-yaml/commit/35daab6ca9f901846d6b47087262fb59e6c0b5fe))
+
 ## [0.4.0](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.3.1...v0.4.0) (2026-07-10)
 
 
