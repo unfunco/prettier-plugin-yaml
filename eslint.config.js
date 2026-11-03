@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import eslintConfigPrettier from 'eslint-config-prettier'
 import tslint from 'typescript-eslint'
 

@@ -6,7 +6,6 @@
   "endOfLine": "lf",
   "htmlWhitespaceSensitivity": "css",
   "jsxSingleQuote": false,
-  "plugins": ["@ianvs/prettier-plugin-sort-imports"],
   "printWidth": 80,
   "proseWrap": "preserve",
   "quoteProps": "as-needed",
