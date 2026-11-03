@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.2](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.4.1...v0.4.2) (2026-11-03)
+
+
+### 🧹 Miscellaneous
+
+* Bump prettier from 3.9.8 to 3.9.9 ([#105](https://github.com/unfunco/prettier-plugin-yaml/issues/105)) ([9997662](https://github.com/unfunco/prettier-plugin-yaml/commit/9997662854ba1d20288c118a66c4c5f21d377e3d))
+* Simplify and secure development dependencies ([#117](https://github.com/unfunco/prettier-plugin-yaml/issues/117)) ([1a45754](https://github.com/unfunco/prettier-plugin-yaml/commit/1a457547ff7eb98c638949187639e213fea6a18f))
+* Update GitHub Actions SHAs ([#119](https://github.com/unfunco/prettier-plugin-yaml/issues/119)) ([9cc712c](https://github.com/unfunco/prettier-plugin-yaml/commit/9cc712ce86fc96397194fd26bd64eaf2c1a96bf7))
+
 ## [0.4.1](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.4.0...v0.4.1) (2026-09-29)
 
 
