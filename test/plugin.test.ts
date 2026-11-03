@@ -1,9 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Daniel Morris <daniel@honestempire.com>
 // SPDX-License-Identifier: MIT
 
+import assert from 'node:assert/strict'
+import { describe, it } from 'node:test'
+
 import prettier from 'prettier'
 import * as builtinYamlPlugin from 'prettier/plugins/yaml'
-import { describe, expect, it } from 'vitest'
+
 import plugin from '../src/index.ts'
 
 async function format(text: string, options: Record<string, unknown> = {}) {
@@ -14,20 +17,23 @@ async function format(text: string, options: Record<string, unknown> = {}) {
   })
 }
 
-describe('yamlAlignValuesProperties', () => {
-  it('does not align properties by default', async () => {
+void describe('yamlAlignValuesProperties', () => {
+  void it('does not align properties by default', async () => {
     const formatted = await format(`
 a     : one
 longer:  two
 `)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 a: one
 longer: two
-`)
+`,
+    )
   })
 
-  it('aligns colons across sibling block mapping entries', async () => {
+  void it('aligns colons across sibling block mapping entries', async () => {
     const formatted = await format(
       `
 a: one
@@ -39,16 +45,19 @@ group:
       { yamlAlignValuesProperties: 'on_colon' },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 a     : one
 longer: two
 mid   : three
 group :
   child: value
-`)
+`,
+    )
   })
 
-  it('aligns scalar values across sibling block mapping entries', async () => {
+  void it('aligns scalar values across sibling block mapping entries', async () => {
     const formatted = await format(
       `
 a: one
@@ -58,14 +67,17 @@ mid: three
       { yamlAlignValuesProperties: 'on_value' },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 a:      one
 longer: two
 mid:    three
-`)
+`,
+    )
   })
 
-  it('keeps nested mapping alignment isolated', async () => {
+  void it('keeps nested mapping alignment isolated', async () => {
     const formatted = await format(
       `
 a: one
@@ -78,17 +90,20 @@ z: three
       { yamlAlignValuesProperties: 'on_value' },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 a:    one
 long: two
 nested:
   x:      one
   longer: two
 z:    three
-`)
+`,
+    )
   })
 
-  it('does not align flow mappings or multiline scalar bodies', async () => {
+  void it('does not align flow mappings or multiline scalar bodies', async () => {
     const formatted = await format(
       `
 a: one
@@ -100,18 +115,20 @@ lit: |
       { yamlAlignValuesProperties: 'on_value' },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 a:    one
 long: two
 very_long_flow: { short: x, longer: y }
 lit:  |
   body: stays
-`)
+`,
+    )
   })
 
-  it.each(['on_colon', 'on_value'])(
-    'is idempotent with %s',
-    async (yamlAlignValuesProperties) => {
+  for (const yamlAlignValuesProperties of ['on_colon', 'on_value']) {
+    void it(`is idempotent with ${yamlAlignValuesProperties}`, async () => {
       const input = `\
 a: one
 longer: two
@@ -122,25 +139,28 @@ nested:
       const once = await format(input, { yamlAlignValuesProperties })
       const twice = await format(once, { yamlAlignValuesProperties })
 
-      expect(twice).toBe(once)
-    },
-  )
+      assert.equal(twice, once)
+    })
+  }
 })
 
-describe('yamlSpaceBeforeColon', () => {
-  it('uses native no-space mapping separators by default', async () => {
+void describe('yamlSpaceBeforeColon', () => {
+  void it('uses native no-space mapping separators by default', async () => {
     const formatted = await format(`
 block : value
 flow: { key : value, other: next }
 `)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 block: value
 flow: { key: value, other: next }
-`)
+`,
+    )
   })
 
-  it('adds one space before block mapping colons', async () => {
+  void it('adds one space before block mapping colons', async () => {
     const formatted = await format(
       `
 short: one
@@ -151,15 +171,18 @@ explicit: null
       { yamlSpaceBeforeColon: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 short : one
 longer : two
 empty :
 explicit : null
-`)
+`,
+    )
   })
 
-  it('adds one space before flow mapping colons', async () => {
+  void it('adds one space before flow mapping colons', async () => {
     const formatted = await format(
       `
 {key: value, nested: {inner: true}, list: [{x: y}]}
@@ -167,16 +190,19 @@ explicit : null
       { printWidth: 40, yamlSpaceBeforeColon: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 {
   key : value,
   nested : { inner : true },
   list : [ { x : y } ],
 }
-`)
+`,
+    )
   })
 
-  it('handles nested mappings and mappings in sequences', async () => {
+  void it('handles nested mappings and mappings in sequences', async () => {
     const formatted = await format(
       `
 root:
@@ -188,16 +214,19 @@ items:
       { yamlSpaceBeforeColon: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 root :
   child : value
 items :
   - name : first
     data : { key : value }
-`)
+`,
+    )
   })
 
-  it('handles quoted and compact complex mapping keys', async () => {
+  void it('handles quoted and compact complex mapping keys', async () => {
     const formatted = await format(
       `
 "quoted:key": value
@@ -208,14 +237,17 @@ items :
       { yamlSpaceBeforeColon: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 "quoted:key" : value
 "other:key" : next
 [ a, b ] : complex
-`)
+`,
+    )
   })
 
-  it('does not alter colon content or YAML structural markers', async () => {
+  void it('does not alter colon content or YAML structural markers', async () => {
     const formatted = await format(
       `
 %YAML 1.2
@@ -233,7 +265,9 @@ literal: |
       { yamlSpaceBeforeColon: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 %YAML 1.2
 ---
 tagged : !<tag:example.com,2026:test> value
@@ -245,10 +279,11 @@ quoted : "a:b"
 literal : |
   body: stays
 ...
-`)
+`,
+    )
   })
 
-  it('aligns colons with a base space before every separator', async () => {
+  void it('aligns colons with a base space before every separator', async () => {
     const formatted = await format(
       `
 a: one
@@ -260,13 +295,16 @@ longer: two
       },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 a      : one
 longer : two
-`)
+`,
+    )
   })
 
-  it('aligns value starts while adding the pre-colon space', async () => {
+  void it('aligns value starts while adding the pre-colon space', async () => {
     const formatted = await format(
       `
 a: one
@@ -278,13 +316,16 @@ longer: two
       },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 a :      one
 longer : two
-`)
+`,
+    )
   })
 
-  it('preserves source line breaks before simple scalar values', async () => {
+  void it('preserves source line breaks before simple scalar values', async () => {
     const formatted = await format(
       `
 short:
@@ -294,14 +335,17 @@ longer: inline
       { yamlSpaceBeforeColon: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 short :
   value
 longer : inline
-`)
+`,
+    )
   })
 
-  it('keeps wrapped explicit mapping separators valid', async () => {
+  void it('keeps wrapped explicit mapping separators valid', async () => {
     const formatted = await format(
       `
 ? [a-very-long-complex-key-part, another-long-complex-key-part]
@@ -310,19 +354,25 @@ longer : inline
       { printWidth: 30, yamlSpaceBeforeColon: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 ? [
     a-very-long-complex-key-part,
     another-long-complex-key-part,
   ]
 : value
-`)
-    await expect(format(formatted, { printWidth: 30 })).resolves.toBe(formatted)
+`,
+    )
+    assert.equal(await format(formatted, { printWidth: 30 }), formatted)
   })
 
-  it.each(['do_not_align', 'on_colon', 'on_value'] as const)(
-    'is idempotent with %s alignment',
-    async (yamlAlignValuesProperties) => {
+  for (const yamlAlignValuesProperties of [
+    'do_not_align',
+    'on_colon',
+    'on_value',
+  ] as const) {
+    void it(`is idempotent with ${yamlAlignValuesProperties} alignment`, async () => {
       const options = {
         yamlAlignValuesProperties,
         yamlSpaceBeforeColon: true,
@@ -337,25 +387,28 @@ items:
       const once = await format(input, options)
       const twice = await format(once, options)
 
-      expect(twice).toBe(once)
-    },
-  )
+      assert.equal(twice, once)
+    })
+  }
 })
 
-describe('yamlBlockMappingOnNewLine', () => {
-  it('keeps block sequence mappings inline by default', async () => {
+void describe('yamlBlockMappingOnNewLine', () => {
+  void it('keeps block sequence mappings inline by default', async () => {
     const formatted = await format(`
 - key: value
   other: value
 `)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 - key: value
   other: value
-`)
+`,
+    )
   })
 
-  it('puts top-level sequence mappings on a new line', async () => {
+  void it('puts top-level sequence mappings on a new line', async () => {
     const formatted = await format(
       `
 - key: value
@@ -364,14 +417,17 @@ describe('yamlBlockMappingOnNewLine', () => {
       { yamlBlockMappingOnNewLine: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 -
   key: value
   other: value
-`)
+`,
+    )
   })
 
-  it('uses the configured indentation for nested sequence mappings', async () => {
+  void it('uses the configured indentation for nested sequence mappings', async () => {
     const formatted = await format(
       `
 root:
@@ -388,7 +444,9 @@ root:
       },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 root:
     -
         name: parent
@@ -396,10 +454,11 @@ root:
             -
                 name: child
                 enabled: true
-`)
+`,
+    )
   })
 
-  it('does not change ordinary mappings or non-mapping sequence items', async () => {
+  void it('does not change ordinary mappings or non-mapping sequence items', async () => {
     const formatted = await format(
       `
 metadata:
@@ -412,17 +471,20 @@ items:
       { yamlBlockMappingOnNewLine: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 metadata:
   owner:
     name: team
 items:
 - scalar
 - { key: value }
-`)
+`,
+    )
   })
 
-  it('works with unindented mapping sequence values', async () => {
+  void it('works with unindented mapping sequence values', async () => {
     const formatted = await format(
       `
 root:
@@ -435,15 +497,18 @@ root:
       },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 root:
 -
   key: value
   other: value
-`)
+`,
+    )
   })
 
-  it('preserves comments, anchors, and tags before mappings', async () => {
+  void it('preserves comments, anchors, and tags before mappings', async () => {
     const formatted = await format(
       `
 - # item comment
@@ -457,7 +522,9 @@ root:
       { yamlBlockMappingOnNewLine: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 - # item comment
   key: value
 - &defaults
@@ -465,10 +532,11 @@ root:
   second: value
 - !custom
   tagged: value
-`)
+`,
+    )
   })
 
-  it('preserves mapping value alignment', async () => {
+  void it('preserves mapping value alignment', async () => {
     const formatted = await format(
       `
 - short: one
@@ -480,14 +548,17 @@ root:
       },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 -
   short:       one
   much_longer: two
-`)
+`,
+    )
   })
 
-  it('is idempotent', async () => {
+  void it('is idempotent', async () => {
     const input = `\
 root:
 -
@@ -503,24 +574,27 @@ root:
     const once = await format(input, options)
     const twice = await format(once, options)
 
-    expect(twice).toBe(once)
+    assert.equal(twice, once)
   })
 })
 
-describe('yamlSequenceOnNewLine', () => {
-  it('keeps nested block sequences inline by default', async () => {
+void describe('yamlSequenceOnNewLine', () => {
+  void it('keeps nested block sequences inline by default', async () => {
     const formatted = await format(`
 - - one
   - two
 `)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 - - one
   - two
-`)
+`,
+    )
   })
 
-  it('puts multiple top-level nested block sequences on new lines', async () => {
+  void it('puts multiple top-level nested block sequences on new lines', async () => {
     const formatted = await format(
       `
 - - one
@@ -531,17 +605,20 @@ describe('yamlSequenceOnNewLine', () => {
       { yamlSequenceOnNewLine: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 -
   - one
   - two
 -
   - three
   - four
-`)
+`,
+    )
   })
 
-  it('puts recursively nested block sequences on new lines', async () => {
+  void it('puts recursively nested block sequences on new lines', async () => {
     const formatted = await format(
       `
 root:
@@ -552,17 +629,20 @@ root:
       { yamlSequenceOnNewLine: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 root:
 -
   - first
   -
     - second
     - third
-`)
+`,
+    )
   })
 
-  it('uses the configured indentation', async () => {
+  void it('uses the configured indentation', async () => {
     const formatted = await format(
       `
 root:
@@ -576,15 +656,18 @@ root:
       },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 root:
     -
         - one
         - two
-`)
+`,
+    )
   })
 
-  it.each([
+  for (const { expected, yamlIndentSequenceValue } of [
     {
       expected: `\
 root:
@@ -603,9 +686,8 @@ root:
 `,
       yamlIndentSequenceValue: true,
     },
-  ])(
-    'works with yamlIndentSequenceValue=$yamlIndentSequenceValue',
-    async ({ expected, yamlIndentSequenceValue }) => {
+  ]) {
+    void it(`works with yamlIndentSequenceValue=${String(yamlIndentSequenceValue)}`, async () => {
       const formatted = await format(
         `
 root:
@@ -615,11 +697,11 @@ root:
         { yamlIndentSequenceValue, yamlSequenceOnNewLine: true },
       )
 
-      expect(formatted).toBe(expected)
-    },
-  )
+      assert.equal(formatted, expected)
+    })
+  }
 
-  it('works independently from yamlBlockMappingOnNewLine', async () => {
+  void it('works independently from yamlBlockMappingOnNewLine', async () => {
     const formatted = await format(
       `
 - - one
@@ -633,17 +715,20 @@ root:
       },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 -
   - one
   - two
 -
   key: value
   other: value
-`)
+`,
+    )
   })
 
-  it('does not change scalar, flow collection, mapping, or ordinary sequence values', async () => {
+  void it('does not change scalar, flow collection, mapping, or ordinary sequence values', async () => {
     const formatted = await format(
       `
 - scalar
@@ -657,7 +742,9 @@ root:
       { yamlSequenceOnNewLine: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 - scalar
 - [ one, two ]
 - { key: value }
@@ -665,10 +752,11 @@ root:
   other: value
 - items:
   - ordinary
-`)
+`,
+    )
   })
 
-  it('preserves comments, anchors, and tags before nested block sequences', async () => {
+  void it('preserves comments, anchors, and tags before nested block sequences', async () => {
     const formatted = await format(
       `
 - # item comment
@@ -684,7 +772,9 @@ root:
       { yamlSequenceOnNewLine: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 - # item comment
   - one
   - two
@@ -694,10 +784,11 @@ root:
 - !custom
   - five
   - six
-`)
+`,
+    )
   })
 
-  it.each([
+  for (const { expected, yamlKeepLineBreaks } of [
     {
       expected: `\
 -
@@ -715,9 +806,8 @@ root:
 `,
       yamlKeepLineBreaks: false,
     },
-  ])(
-    'works with yamlKeepLineBreaks=$yamlKeepLineBreaks',
-    async ({ expected, yamlKeepLineBreaks }) => {
+  ]) {
+    void it(`works with yamlKeepLineBreaks=${String(yamlKeepLineBreaks)}`, async () => {
       const formatted = await format(
         `
 - -
@@ -727,11 +817,11 @@ root:
         { yamlKeepLineBreaks, yamlSequenceOnNewLine: true },
       )
 
-      expect(formatted).toBe(expected)
-    },
-  )
+      assert.equal(formatted, expected)
+    })
+  }
 
-  it('is idempotent', async () => {
+  void it('is idempotent', async () => {
     const input = `\
 root:
 -
@@ -744,12 +834,12 @@ root:
     const once = await format(input, options)
     const twice = await format(once, options)
 
-    expect(twice).toBe(once)
+    assert.equal(twice, once)
   })
 })
 
-describe('yamlKeepLineBreaks: true (default)', () => {
-  it('preserves a source line break before a scalar mapping value', async () => {
+void describe('yamlKeepLineBreaks: true (default)', () => {
+  void it('preserves a source line break before a scalar mapping value', async () => {
     const formatted = await format(`
 key:
   value
@@ -760,7 +850,9 @@ double:
   "quoted value"
 `)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 key:
   value
 same_line: value
@@ -768,10 +860,11 @@ single:
   "quoted value"
 double:
   "quoted value"
-`)
+`,
+    )
   })
 
-  it('preserves nested mapping values, including mappings in sequences', async () => {
+  void it('preserves nested mapping values, including mappings in sequences', async () => {
     const formatted = await format(`
 root:
   child:
@@ -781,17 +874,20 @@ items:
       item value
 `)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 root:
   child:
     nested value
 items:
 - key:
     item value
-`)
+`,
+    )
   })
 
-  it('preserves a source line break before a scalar sequence item', async () => {
+  void it('preserves a source line break before a scalar sequence item', async () => {
     const formatted = await format(`
 items:
   -
@@ -799,15 +895,18 @@ items:
   - second
 `)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 items:
 -
   first
 - second
-`)
+`,
+    )
   })
 
-  it('uses native formatting for comments and block scalars', async () => {
+  void it('uses native formatting for comments and block scalars', async () => {
     const formatted = await format(`
 before: # stays with the key
   commented value
@@ -822,7 +921,9 @@ block:
     second
 `)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 before: # stays with the key
   commented value
 after:
@@ -833,24 +934,28 @@ items:
 block: |
   first
   second
-`)
+`,
+    )
   })
 
-  it('normalizes indentation, trailing spaces, and scalar continuation lines', async () => {
+  void it('normalizes indentation, trailing spaces, and scalar continuation lines', async () => {
     const input =
       'key:\n          value   \nwrapped:\n  one two\n  three four\n'
     const formatted = await format(input)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 key:
   value
 wrapped:
   one two
   three four
-`)
+`,
+    )
   })
 
-  it('leaves collection wrapping to printWidth', async () => {
+  void it('leaves collection wrapping to printWidth', async () => {
     const formatted = await format(
       `
 value:
@@ -859,7 +964,9 @@ value:
       { printWidth: 20 },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 value:
   [
     one,
@@ -867,10 +974,11 @@ value:
     three,
     four,
   ]
-`)
+`,
+    )
   })
 
-  it.each([
+  for (const { expected, yamlIndentSequenceValue } of [
     {
       expected: `\
 items:
@@ -891,9 +999,8 @@ items:
 `,
       yamlIndentSequenceValue: true,
     },
-  ])(
-    'works with yamlIndentSequenceValue=$yamlIndentSequenceValue',
-    async ({ expected, yamlIndentSequenceValue }) => {
+  ]) {
+    void it(`works with yamlIndentSequenceValue=${String(yamlIndentSequenceValue)}`, async () => {
       const formatted = await format(
         `
 items:
@@ -905,11 +1012,11 @@ items:
         { yamlIndentSequenceValue },
       )
 
-      expect(formatted).toBe(expected)
-    },
-  )
+      assert.equal(formatted, expected)
+    })
+  }
 
-  it('is idempotent', async () => {
+  void it('is idempotent', async () => {
     const input = `\
 root:
   value
@@ -922,12 +1029,12 @@ items:
     const once = await format(input)
     const twice = await format(once)
 
-    expect(twice).toBe(once)
+    assert.equal(twice, once)
   })
 })
 
-describe('yamlKeepLineBreaks: false', () => {
-  it("uses Prettier's native scalar collapsing behavior", async () => {
+void describe('yamlKeepLineBreaks: false', () => {
+  void it("uses Prettier's native scalar collapsing behavior", async () => {
     const formatted = await format(
       `
 root:
@@ -942,30 +1049,36 @@ items:
       { yamlKeepLineBreaks: false },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 root:
   child: value
 items:
 - scalar
 - key: item value
-`)
+`,
+    )
   })
 })
 
-describe('yamlLineCommentAddSpaceOnReformat', () => {
-  it('preserves current comment text by default', async () => {
+void describe('yamlLineCommentAddSpaceOnReformat', () => {
+  void it('preserves current comment text by default', async () => {
     const formatted = await format(`\
 #standalone
 key: value #inline
 `)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 #standalone
 key: value #inline
-`)
+`,
+    )
   })
 
-  it('adds a space to standalone and inline comments when enabled', async () => {
+  void it('adds a space to standalone and inline comments when enabled', async () => {
     const formatted = await format(
       `\
 #standalone
@@ -974,26 +1087,32 @@ key: value #inline
       { yamlLineCommentAddSpaceOnReformat: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 # standalone
 key: value # inline
-`)
+`,
+    )
   })
 
-  it('keeps spaced and bare comments and preserves native blank formatting', async () => {
+  void it('keeps spaced and bare comments and preserves native blank formatting', async () => {
     const formatted = await format('# spaced\n#\n#   \nkey: value # spaced\n', {
       yamlLineCommentAddSpaceOnReformat: true,
     })
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 # spaced
 #
 #
 key: value # spaced
-`)
+`,
+    )
   })
 
-  it('does not change hashes in scalar content', async () => {
+  void it('does not change hashes in scalar content', async () => {
     const formatted = await format(
       `\
 plain: value#fragment
@@ -1009,7 +1128,9 @@ folded: >
       { yamlLineCommentAddSpaceOnReformat: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 plain: value#fragment
 double: "#quoted"
 single: "#quoted"
@@ -1019,10 +1140,11 @@ literal: |
 folded: >
   #block scalar
   value#fragment
-`)
+`,
+    )
   })
 
-  it('only changes comment nodes around directives, anchors, and tags', async () => {
+  void it('only changes comment nodes around directives, anchors, and tags', async () => {
     const formatted = await format(
       `\
 %YAML 1.2
@@ -1035,17 +1157,20 @@ reference: *defaults
       { yamlLineCommentAddSpaceOnReformat: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 %YAML 1.2
 ---
 defaults: &defaults
   tagged: !custom value
 reference: *defaults
 # document comment
-`)
+`,
+    )
   })
 
-  it('handles nested mappings, sequences, and preserved line breaks', async () => {
+  void it('handles nested mappings, sequences, and preserved line breaks', async () => {
     const formatted = await format(
       `\
 before: #key comment
@@ -1065,7 +1190,9 @@ items:
       },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 before: # key comment
   commented value
 root:
@@ -1076,10 +1203,11 @@ items:
 - # item comment
   sequence value
 - scalar # inline item comment
-`)
+`,
+    )
   })
 
-  it('normalizes ordinary suppression comment nodes without changing semantics', async () => {
+  void it('normalizes ordinary suppression comment nodes without changing semantics', async () => {
     const formatted = await format(
       `\
 #prettier-ignore
@@ -1088,13 +1216,16 @@ ignored:   [a,b]
       { yamlLineCommentAddSpaceOnReformat: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 # prettier-ignore
 ignored:   [a,b]
-`)
+`,
+    )
   })
 
-  it('is idempotent', async () => {
+  void it('is idempotent', async () => {
     const input = `\
 #standalone
 root:
@@ -1104,12 +1235,12 @@ root:
     const once = await format(input, options)
     const twice = await format(once, options)
 
-    expect(twice).toBe(once)
+    assert.equal(twice, once)
   })
 })
 
-describe('yamlIndentSequenceValue: false (default)', () => {
-  it('unindents top-level sequence values', async () => {
+void describe('yamlIndentSequenceValue: false (default)', () => {
+  void it('unindents top-level sequence values', async () => {
     const formatted = await format(`
 property:
   - object_one: 1
@@ -1118,16 +1249,19 @@ property:
     object_two_property_two: 2
 `)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 property:
 - object_one: 1
   object_one_property_two: 2
 - object_two: 2
   object_two_property_two: 2
-`)
+`,
+    )
   })
 
-  it('unindents nested sequence values', async () => {
+  void it('unindents nested sequence values', async () => {
     const formatted = await format(`
 root:
   - name: one
@@ -1136,16 +1270,19 @@ root:
       - b
 `)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 root:
 - name: one
   attrs:
   - a
   - b
-`)
+`,
+    )
   })
 
-  it('only removes the mapping indent that belongs to the sequence value', async () => {
+  void it('only removes the mapping indent that belongs to the sequence value', async () => {
     const formatted = await format(`
 root:
   - child:
@@ -1156,7 +1293,9 @@ root:
         - 2
 `)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 root:
 - child:
     nested:
@@ -1164,26 +1303,30 @@ root:
     list:
     - 1
     - 2
-`)
+`,
+    )
   })
 
-  it('keeps sequence comments aligned with the sequence', async () => {
+  void it('keeps sequence comments aligned with the sequence', async () => {
     const formatted = await format(`
 property:
   # comment
   - a
 `)
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 property:
 # comment
 - a
-`)
+`,
+    )
   })
 })
 
-describe('yamlIndentSequenceValue: true', () => {
-  it("preserves Prettier's native indented sequence output", async () => {
+void describe('yamlIndentSequenceValue: true', () => {
+  void it("preserves Prettier's native indented sequence output", async () => {
     const formatted = await format(
       `
 property:
@@ -1195,38 +1338,41 @@ property:
       { yamlIndentSequenceValue: true },
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 property:
   - object_one: 1
     object_one_property_two: 2
   - object_two: 2
     object_two_property_two: 2
-`)
+`,
+    )
   })
 })
 
-describe('yamlSpacesWithinBrackets: true (default)', () => {
-  it('adds spaces inside flow sequences by default', async () => {
+void describe('yamlSpacesWithinBrackets: true (default)', () => {
+  void it('adds spaces inside flow sequences by default', async () => {
     const formatted = await format(
       `
 property: [verify]
 `,
     )
 
-    expect(formatted).toBe('property: [ verify ]\n')
+    assert.equal(formatted, 'property: [ verify ]\n')
   })
 
-  it('adds spaces inside empty flow sequences by default', async () => {
+  void it('adds spaces inside empty flow sequences by default', async () => {
     const formatted = await format(
       `
 property: []
 `,
     )
 
-    expect(formatted).toBe('property: [ ]\n')
+    assert.equal(formatted, 'property: [ ]\n')
   })
 
-  it('adds spaces to multi-line flow sequences after flattening by default', async () => {
+  void it('adds spaces to multi-line flow sequences after flattening by default', async () => {
     const formatted = await format(
       `
 key:
@@ -1237,12 +1383,15 @@ key:
 `,
     )
 
-    expect(formatted).toBe(`\
+    assert.equal(
+      formatted,
+      `\
 key: [ a, b ]
-`)
+`,
+    )
   })
 
-  it('can disable spaces inside flow sequences', async () => {
+  void it('can disable spaces inside flow sequences', async () => {
     const formatted = await format(
       `
 property: [ verify ]
@@ -1250,22 +1399,22 @@ property: [ verify ]
       { yamlSpacesWithinBrackets: false },
     )
 
-    expect(formatted).toBe('property: [verify]\n')
+    assert.equal(formatted, 'property: [verify]\n')
   })
 })
 
-describe('yamlSpacesWithinBraces: true (default)', () => {
-  it('adds spaces inside empty flow mappings by default', async () => {
+void describe('yamlSpacesWithinBraces: true (default)', () => {
+  void it('adds spaces inside empty flow mappings by default', async () => {
     const formatted = await format(
       `
 property: {}
 `,
     )
 
-    expect(formatted).toBe('property: { }\n')
+    assert.equal(formatted, 'property: { }\n')
   })
 
-  it('overrides bracketSpacing=false for flow mappings by default', async () => {
+  void it('overrides bracketSpacing=false for flow mappings by default', async () => {
     const formatted = await format(
       `
 property: {a: 1}
@@ -1273,10 +1422,10 @@ property: {a: 1}
       { bracketSpacing: false },
     )
 
-    expect(formatted).toBe('property: { a: 1 }\n')
+    assert.equal(formatted, 'property: { a: 1 }\n')
   })
 
-  it('can disable spaces inside flow mappings independent of bracketSpacing', async () => {
+  void it('can disable spaces inside flow mappings independent of bracketSpacing', async () => {
     const formatted = await format(
       `
 property: { a: 1 }
@@ -1284,12 +1433,12 @@ property: { a: 1 }
       { yamlSpacesWithinBraces: false },
     )
 
-    expect(formatted).toBe('property: {a: 1}\n')
+    assert.equal(formatted, 'property: {a: 1}\n')
   })
 })
 
-describe('split flow collection spacing options', () => {
-  it('spaces braces without spacing brackets', async () => {
+void describe('split flow collection spacing options', () => {
+  void it('spaces braces without spacing brackets', async () => {
     const formatted = await format(
       `
 property: [{}, [a]]
@@ -1297,10 +1446,10 @@ property: [{}, [a]]
       { yamlSpacesWithinBrackets: false },
     )
 
-    expect(formatted).toBe('property: [{ }, [a]]\n')
+    assert.equal(formatted, 'property: [{ }, [a]]\n')
   })
 
-  it('spaces brackets without spacing braces', async () => {
+  void it('spaces brackets without spacing braces', async () => {
     const formatted = await format(
       `
 property: [{}, [a]]
@@ -1308,6 +1457,6 @@ property: [{}, [a]]
       { yamlSpacesWithinBraces: false },
     )
 
-    expect(formatted).toBe('property: [ {}, [ a ] ]\n')
+    assert.equal(formatted, 'property: [ {}, [ a ] ]\n')
   })
 })

@@ -9,16 +9,12 @@
   },
   "description": "YAML plugin for Prettier that avoids indentation of sequence values.",
   "devDependencies": {
-    "@ianvs/prettier-plugin-sort-imports": "4.7.1",
-    "@types/node": "24.12.2",
-    "eslint": "10.11.0",
+    "@types/node": "24.19.2",
+    "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
-    "jiti": "2.7.0",
-    "prettier": "3.9.9",
-    "tsup": "8.5.1",
+    "prettier": "3.9.10",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.70.1",
-    "vitest": "5.0.1"
+    "typescript-eslint": "8.72.1"
   },
   "engines": {
     "node": ">=24"
@@ -43,6 +39,9 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "name": "@unfunco/prettier-plugin-yaml",
+  "overrides": {
+    "minimatch@^10.0.0": "11.0.4"
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -54,12 +53,12 @@
     "url": "https://github.com/unfunco/prettier-plugin-yaml"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm && tsc -p tsconfig.build.json && node --input-type=module --eval \"import { copyFileSync } from 'node:fs'; copyFileSync('src/prettier.d.ts', 'dist/prettier.d.ts')\"",
+    "build": "tsc -p tsconfig.build.json && node --input-type=module --eval \"import { copyFileSync } from 'node:fs'; copyFileSync('src/prettier.d.ts', 'dist/prettier.d.ts')\"",
     "fmt:check": "prettier --check .",
     "fmt:fix": "prettier --write .",
     "lint:check": "eslint",
     "lint:fix": "eslint",
-    "test": "vitest run",
+    "test": "node --test test/*.test.ts",
     "typecheck": "tsc -p tsconfig.json"
   },
   "type": "module",
