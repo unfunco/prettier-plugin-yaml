@@ -20,6 +20,8 @@ It does what I want.
 npm install --save-dev prettier @unfunco/prettier-plugin-yaml
 ```
 
+It needs Prettier 3 and Node.js 24 or later.
+
 ## Usage
 
 Add the plugin to your Prettier configuration. Set whichever options differ
@@ -87,10 +89,33 @@ Controls how sibling block-mapping properties align:
 - `on_colon` aligns mapping colons.
 - `on_value` aligns the start of scalar values.
 
+Keys are measured as they're printed, so quotes, anchors, and tags count. A key
+that isn't followed by its colon on the same line, such as an explicit `? key`,
+is left out of the alignment.
+
 ### `yamlBlockMappingOnNewLine`
 
 Controls whether a block mapping used as a sequence item starts on the line after
 the sequence marker. The default is `false`.
+
+### `yamlIndentSequenceValue`
+
+Controls whether a block sequence is indented under the mapping key it belongs
+to. The default is `false`, which is the whole reason this plugin exists:
+
+```yaml
+key:
+  - one
+  - two
+```
+
+Set it to `true` for Prettier's usual output:
+
+```yaml
+key:
+  - one
+  - two
+```
 
 ### `yamlSequenceOnNewLine`
 
@@ -127,7 +152,19 @@ applies when enabled: `on_colon` aligns colons with at least one pre-colon space
 and `on_value` aligns value starts after adding that space.
 
 Only mapping key separators change. Colons in scalar content, tags, anchors,
-directives, and document markers stay unchanged.
+directives, and document markers stay unchanged. A colon with no key in front of
+it stays where it is, since a space there would change the indentation.
+
+### `yamlSpacesWithinBraces`
+
+Puts a space inside the braces of flow mappings: `{ key: value }` and `{ }`. The
+default is `true`; set it to `false` for `{key: value}` and `{}`. It replaces
+Prettier's `bracketSpacing` option for YAML.
+
+### `yamlSpacesWithinBrackets`
+
+Puts a space inside the brackets of flow sequences: `[ one, two ]` and `[ ]`. The
+default is `true`; set it to `false` for `[one, two]` and `[]`.
 
 ## License
 
