@@ -3,20 +3,30 @@ name: PR
 on:
   pull_request: {}
 
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: read
+
 jobs:
   verify:
     name: Verify
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
           cache: npm
           node-version-file: .node-version
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
       - name: Audit dependencies
         run: npm audit --audit-level=high
       - name: Check formatting
@@ -29,3 +39,9 @@ jobs:
         run: npm run test
       - name: Build
         run: npm run build
+      # The printer adjusts the output of Prettier's own YAML printer, so the
+      # lower bound of the peer dependency range is tested as well.
+      - name: Run tests against the oldest supported Prettier
+        run: |
+          npm install --ignore-scripts --no-save prettier@3.0.0
+          npm run test

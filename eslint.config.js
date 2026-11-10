@@ -1,31 +1,36 @@
-import path from 'node:path'
+import eslintConfigPrettier from 'eslint-config-prettier/flat'
+import { defineConfig, globalIgnores } from 'eslint/config'
+import tseslint from 'typescript-eslint'
 
-import eslintConfigPrettier from 'eslint-config-prettier'
-import tslint from 'typescript-eslint'
-
-export default [
-  {
-    ignores: ['dist/'],
-  },
-  ...tslint.configs.strictTypeChecked,
-  ...tslint.configs.stylisticTypeChecked,
+export default defineConfig(
+  globalIgnores(['dist/']),
+  tseslint.configs.strictTypeChecked,
+  tseslint.configs.stylisticTypeChecked,
   {
     languageOptions: {
       parserOptions: {
-        project: true,
-        tsconfigRootDir: path.resolve(),
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
+    },
+    linterOptions: {
+      reportUnusedDisableDirectives: 'error',
     },
     rules: {
       curly: ['error', 'all'],
       eqeqeq: ['error', 'always'],
       'no-console': 'error',
       '@typescript-eslint/consistent-type-imports': 'error',
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unsafe-assignment': 'warn',
-      '@typescript-eslint/no-unsafe-call': 'warn',
-      '@typescript-eslint/no-unsafe-member-access': 'warn',
+      '@typescript-eslint/no-floating-promises': [
+        'error',
+        {
+          // The test runner tracks these promises itself.
+          allowForKnownSafeCalls: [
+            { from: 'package', name: ['describe', 'it'], package: 'node:test' },
+          ],
+        },
+      ],
     },
   },
   eslintConfigPrettier,
-]
+)
