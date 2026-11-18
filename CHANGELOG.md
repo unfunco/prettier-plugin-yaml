@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.3](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.4.2...v0.4.3) (2026-11-18)
+
+
+### 🧹 Miscellaneous
+
+* Bump typescript-eslint from 8.72.1 to 8.72.2 ([#124](https://github.com/unfunco/prettier-plugin-yaml/issues/124)) ([3857dd7](https://github.com/unfunco/prettier-plugin-yaml/commit/3857dd7f5165bf8062ace7777c254ccf6c4a2d3c))
+
 ## [0.4.2](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.4.1...v0.4.2) (2026-11-10)
 
 
