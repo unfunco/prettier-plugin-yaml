@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.3](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.4.2...v0.4.3) (2026-11-26)
+
+
+### 🧹 Miscellaneous
+
+* Bump eslint from 10.14.0 to 10.15.0 ([#126](https://github.com/unfunco/prettier-plugin-yaml/issues/126)) ([1eb3e26](https://github.com/unfunco/prettier-plugin-yaml/commit/1eb3e26fa699e3dd1165b9ec1e6c5eaacc634ccb))
+* Bump prettier from 3.9.10 to 3.10.1 ([#128](https://github.com/unfunco/prettier-plugin-yaml/issues/128)) ([ab67fdb](https://github.com/unfunco/prettier-plugin-yaml/commit/ab67fdb50e6505593819fbb82530bdaa6783c408))
+* Bump typescript-eslint from 8.72.1 to 8.72.2 ([#124](https://github.com/unfunco/prettier-plugin-yaml/issues/124)) ([3857dd7](https://github.com/unfunco/prettier-plugin-yaml/commit/3857dd7f5165bf8062ace7777c254ccf6c4a2d3c))
+* Bump typescript-eslint from 8.72.2 to 8.73.0 ([#127](https://github.com/unfunco/prettier-plugin-yaml/issues/127)) ([a7a3738](https://github.com/unfunco/prettier-plugin-yaml/commit/a7a3738420a6ae949028259b090499fe3d00f863))
+* Standardise changelog emoji sections ([#129](https://github.com/unfunco/prettier-plugin-yaml/issues/129)) ([12463be](https://github.com/unfunco/prettier-plugin-yaml/commit/12463be813046494528df26364d4650099319b01))
+
 ## [0.4.2](https://github.com/unfunco/prettier-plugin-yaml/compare/v0.4.1...v0.4.2) (2026-11-10)
 
 
